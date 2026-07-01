@@ -123,6 +123,7 @@ signalforge-ai-ops-lab/
     13-quality-gates-and-ci-security.md
     14-ci-interview-answer.md
     15-aws-oidc-terraform-bootstrap.md
+    16-oidc-explained-human-version.md
 ```
 
 ## Manual Work Required From You
