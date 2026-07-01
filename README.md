@@ -121,6 +121,8 @@ signalforge-ai-ops-lab/
     11-github-actions-ci.md
     12-java-maven-pom-artifacts.md
     13-quality-gates-and-ci-security.md
+    14-ci-interview-answer.md
+    15-aws-oidc-terraform-bootstrap.md
 ```
 
 ## Manual Work Required From You
