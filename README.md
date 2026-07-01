@@ -4,6 +4,16 @@ SignalForge AI Ops Lab is a hands-on DevOps and reliability engineering project 
 
 This is not only a "three-tier app on AWS" project. The goal is to learn how modern teams build, deploy, secure, monitor, break, diagnose, and recover production-style systems.
 
+The lab is also designed to be disposable:
+
+```text
+Create infrastructure in the morning
+Practice deployments and incidents
+Destroy resources at the end of the day
+Recreate the same environment from GitHub Actions the next day
+Continue from Git history, Terraform code, artifacts, and documentation
+```
+
 ## What This Project Builds
 
 The first version deploys a Java Spring Boot application into a secure AWS architecture:
@@ -45,6 +55,7 @@ This repo is designed for DevOps, SRE, cloud, and platform engineering interview
 - 502, 503, latency, CPU, memory, disk, and database failure simulations
 - Security controls across IAM, network, secrets, artifacts, and supply chain
 - AI-assisted root-cause analysis and incident runbook generation
+- Beginner-friendly explanations of command flags, Terraform syntax, AWS terms, and production incident language
 
 ## Application Idea
 
@@ -144,3 +155,18 @@ Day 2:
 
 Phase 0 is in progress: project structure, documentation, branding, manual checklist, and learning plan.
 
+## Beginner Learning Style
+
+Every major topic should be explained using this pattern:
+
+```text
+1. Real-world analogy
+2. Technical meaning
+3. AWS/GitHub/Terraform example
+4. Command or config
+5. What each important flag or argument means
+6. What can go wrong in production
+7. How to detect it
+8. How to fix it
+9. How to explain it in an interview
+```
