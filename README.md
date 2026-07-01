@@ -115,6 +115,12 @@ signalforge-ai-ops-lab/
     05-interview-troubleshooting-notes.md
     06-linkedin-project-story.md
     07-domain-and-branding.md
+    08-disposable-lab-operations.md
+    09-scenario-catalog.md
+    10-local-toolchain.md
+    11-github-actions-ci.md
+    12-java-maven-pom-artifacts.md
+    13-quality-gates-and-ci-security.md
 ```
 
 ## Manual Work Required From You
