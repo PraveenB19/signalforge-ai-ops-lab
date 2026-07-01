@@ -120,6 +120,7 @@ signalforge-ai-ops-lab/
     10-local-toolchain.md
     11-github-actions-ci.md
     12-java-maven-pom-artifacts.md
+    13-quality-gates-and-ci-security.md
 ```
 
 ## Manual Work Required From You
