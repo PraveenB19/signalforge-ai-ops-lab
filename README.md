@@ -118,6 +118,7 @@ signalforge-ai-ops-lab/
     08-disposable-lab-operations.md
     09-scenario-catalog.md
     10-local-toolchain.md
+    11-github-actions-ci.md
 ```
 
 ## Manual Work Required From You

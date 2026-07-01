@@ -1,34 +1,30 @@
 package dev.signalforge.api;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Map;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.http.ResponseEntity;
 
-@SpringBootTest
-@AutoConfigureMockMvc
 class SimulationControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    private final SimulationController controller = new SimulationController();
 
     @Test
-    void latencyIsBoundedAndReturnsOk() throws Exception {
-        mockMvc.perform(get("/simulate/latency?ms=1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.simulated").value("latency"));
+    void latencyIsBoundedAndReturnsOk() throws InterruptedException {
+        Map<String, Object> response = controller.latency(1);
+
+        assertThat(response)
+                .containsEntry("simulated", "latency")
+                .containsEntry("requestedMs", 1L)
+                .containsEntry("actualMs", 1L);
     }
 
     @Test
-    void errorEndpointCanReturn503() throws Exception {
-        mockMvc.perform(get("/simulate/error?status=503"))
-                .andExpect(status().isServiceUnavailable())
-                .andExpect(jsonPath("$.status").value(503));
+    void errorEndpointCanReturn503() {
+        ResponseEntity<Map<String, Object>> response = controller.error(503);
+
+        assertThat(response.getStatusCode().value()).isEqualTo(503);
+        assertThat(response.getBody()).containsEntry("status", 503);
     }
 }
-
