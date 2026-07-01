@@ -12,8 +12,12 @@ Workflow file:
 Code push or pull request
   -> checkout repository
   -> install Java 21
-  -> run tests
+  -> run Maven verify
+  -> compile code
+  -> run unit tests
+  -> generate JaCoCo coverage
   -> build JAR
+  -> send code/coverage to SonarQube Cloud
   -> scan repository with Trivy
   -> upload Trivy report
   -> upload JAR artifact
@@ -159,17 +163,18 @@ Temurin is a common OpenJDK distribution.
 Maven cache makes later builds faster.
 ```
 
-### Test
+### Maven Verify
 
 ```yaml
-- name: Run tests
-  run: mvn -B test
+- name: Run tests, build JAR, and generate coverage
+  run: mvn -B verify
 ```
 
 Meaning:
 
 ```text
-Compiles the app and runs unit tests.
+Runs the Maven lifecycle through the verify phase.
+For this app, that means compile, test, package the JAR, and generate coverage.
 If tests fail, the workflow fails.
 ```
 
@@ -179,23 +184,33 @@ If tests fail, the workflow fails.
 Cleaner, non-interactive Maven output for CI/CD logs.
 ```
 
-### Package
+Why this is better than separate beginner steps:
+
+```text
+One Maven lifecycle command gives a cleaner story:
+the same build run produces test results, coverage, and the deployable JAR.
+```
+
+### SonarQube Cloud Scan
 
 ```yaml
-- name: Build JAR
-  run: mvn -B package -DskipTests
+- name: Run SonarQube Cloud scan
+  run: mvn -B sonar:sonar
+  env:
+    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 ```
 
 Meaning:
 
 ```text
-Builds the deployable Java JAR under app/target/.
+Sends code, test, and JaCoCo coverage information to SonarQube Cloud.
+The SONAR_TOKEN secret authenticates the scan to the SonarQube Cloud project.
 ```
 
-`-DskipTests` means:
+Why this runs after `verify`:
 
 ```text
-Do not run tests again during package because the previous step already ran them.
+SonarQube needs the compiled project and coverage report that Maven created.
 ```
 
 ### Trivy Scan
@@ -325,4 +340,26 @@ dev
 
 main
   CI + production approval + deploy to prod AWS later
+```
+
+## Interview Flow
+
+Use this natural explanation:
+
+```text
+When I push code, GitHub Actions starts because the workflow has branch triggers
+for main, dev, and feature/**. The runner checks out the code, installs Java 21,
+and runs `mvn -B verify`. Maven compiles the code, runs JUnit tests, creates the
+JaCoCo coverage report, and packages the Spring Boot JAR. After that, SonarQube
+Cloud analyzes quality and coverage, while Trivy scans for vulnerabilities and
+secrets. Only after those checks do we upload the JAR as an artifact.
+```
+
+If someone asks what `permissions: contents: read` means:
+
+```text
+GitHub gives each workflow a temporary GITHUB_TOKEN. `contents: read` limits that
+token to reading repository content, which is enough for checkout and CI. Later,
+AWS deployment workflows will add `id-token: write` so GitHub can request an OIDC
+token for AWS, but that does not automatically grant AWS permissions.
 ```

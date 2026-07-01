@@ -9,13 +9,20 @@ Example backend:
 ```hcl
 terraform {
   backend "s3" {
-    bucket       = "signalforge-terraform-state"
+    bucket       = "signalforge-tfstate-575108962419-us-east-1"
     key          = "dev/terraform.tfstate"
     region       = "us-east-1"
-    encrypt      = true
     use_lockfile = true
   }
 }
+```
+
+Analogy:
+
+```text
+Terraform state is the project inventory notebook.
+The S3 bucket is the shared, protected cabinet.
+The lockfile is the "someone is editing this notebook" sign.
 ```
 
 Important:
@@ -31,6 +38,15 @@ Important:
 Older Terraform S3 backends used DynamoDB for state locking.
 
 Modern Terraform supports S3 native lockfiles using `use_lockfile = true`. HashiCorp now marks DynamoDB-based locking as deprecated for the S3 backend, so this project uses S3 lockfiles.
+
+Interview answer:
+
+```text
+I am using S3 for remote Terraform state and S3 native lockfiles for locking.
+That prevents two Terraform runs from modifying the same state at once. DynamoDB
+locking was the older common pattern, but current Terraform S3 backend supports
+native lockfiles and marks DynamoDB locking as deprecated.
+```
 
 ## Environment Layout
 
@@ -91,6 +107,24 @@ Human reviews
 Either revert AWS manual change or update Terraform code
 ```
 
+Production example:
+
+```text
+During a Sev1, an engineer may temporarily open a security group rule manually to
+restore service. After the incident, Terraform plan will detect drift because AWS
+no longer matches code. The correct follow-up is to either revert the manual AWS
+change or intentionally update Terraform code, review it, and apply it.
+```
+
+Interview answer:
+
+```text
+I do not blindly apply drift in production. I run a plan or refresh-only plan,
+review what changed, identify whether it was an emergency manual fix or an
+unauthorized change, and then decide whether Terraform code or the live resource
+should be corrected.
+```
+
 ## Staging Works But Production Fails
 
 Common reasons:
@@ -118,4 +152,3 @@ Compare stage and prod plans
 Use least privilege but verify required permissions
 Never skip state locking
 ```
-

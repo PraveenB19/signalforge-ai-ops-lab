@@ -2,6 +2,21 @@
 
 This note explains the GitHub Actions to AWS OIDC setup in a natural way.
 
+## The One Sentence Version
+
+```text
+GitHub Actions proves to AWS, with a short-lived signed identity token, that a
+specific workflow from our repo and GitHub Environment is allowed to assume a
+specific AWS IAM role.
+```
+
+If you remember only one thing:
+
+```text
+OIDC replaces stored AWS access keys with temporary credentials created only
+when a trusted workflow runs.
+```
+
 ## What We Are Trying To Solve
 
 We want GitHub Actions to create AWS infrastructure using Terraform.
@@ -31,6 +46,15 @@ No long-lived AWS keys in GitHub.
 GitHub gets short-lived AWS credentials only when a workflow runs.
 ```
 
+Real-time production example:
+
+```text
+A company wants every Terraform apply to run from GitHub Actions, but they do
+not want AWS access keys sitting in GitHub secrets for months. With OIDC, a
+workflow gets temporary credentials for only that run. If the workflow ends, the
+credentials expire. If someone copies old logs, they do not get reusable AWS keys.
+```
+
 ## What OIDC Means Here
 
 OIDC means OpenID Connect.
@@ -48,6 +72,21 @@ Analogy:
 GitHub issues an ID card for the workflow.
 AWS checks the ID card.
 If the ID card matches the trust rules, AWS gives the workflow a temporary visitor badge.
+```
+
+The ID card contains claims. Claims are facts about the workflow.
+
+Important claims for us:
+
+```text
+aud:
+  Who the token is meant for.
+  For AWS, this should be sts.amazonaws.com.
+
+sub:
+  The subject identity.
+  This tells AWS which repo, branch, tag, pull request, or environment the
+  workflow came from.
 ```
 
 ## What STS Means
@@ -98,6 +137,25 @@ AWS STS:
 
 Terraform:
   Uses those temporary credentials to create/update AWS resources.
+```
+
+Architecture flow:
+
+```mermaid
+sequenceDiagram
+    participant Job as GitHub Actions Job
+    participant OIDC as GitHub OIDC Provider
+    participant STS as AWS STS
+    participant IAM as AWS IAM Role
+    participant TF as Terraform
+
+    Job->>OIDC: Request OIDC token
+    OIDC-->>Job: Signed token with repo/environment claims
+    Job->>STS: AssumeRoleWithWebIdentity(token)
+    STS->>IAM: Check trust policy
+    IAM-->>STS: Allow only if aud/sub match
+    STS-->>Job: Temporary AWS credentials
+    Job->>TF: Run terraform plan/apply
 ```
 
 ## Authentication vs Authorization
@@ -171,6 +229,12 @@ GitHub environment:
 dev
 ```
 
+AWS role ARN:
+
+```text
+arn:aws:iam::575108962419:role/signalforge-github-actions-dev
+```
+
 ## Why The AWS Console Wizard Was Confusing
 
 The AWS role wizard asked for branch/environment input, but it produced this kind of incorrect `sub` value:
@@ -239,6 +303,19 @@ Random branches without the dev environment
 Long-lived AWS keys
 ```
 
+What this does not mean:
+
+```text
+It does not mean every GitHub workflow gets AWS admin access.
+It does not mean every branch can deploy.
+It does not mean OIDC itself creates infrastructure.
+It only means AWS can trust a specific workflow identity enough to issue
+temporary credentials for an IAM role.
+```
+
+The permissions policy attached to the role is still what decides what Terraform
+can actually do.
+
 ## GitHub Workflow Requirement
 
 For a workflow to use OIDC, it must include:
@@ -259,109 +336,150 @@ contents: read:
   Allows checkout to read the repo code.
 ```
 
-The job should also specify:
+The workflow job also needs to use the environment we trusted:
 
 ```yaml
-environment: dev
+jobs:
+  terraform-plan:
+    environment: dev
 ```
 
-Why:
+If the job does not use `environment: dev`, the token subject will not match:
 
 ```text
-The IAM trust policy expects environment:dev in the token subject.
-If the workflow does not use the dev environment, AWS will reject the request.
+repo:PraveenB19/signalforge-ai-ops-lab:environment:dev
 ```
 
-## Same Account Environment Strategy
+When that happens, AWS STS should deny the request.
 
-We can simulate multiple environments in the same AWS account.
+## Dev Branch vs Dev Environment
 
-Example:
+This is a common confusion.
 
 ```text
-dev:
-  signalforge-dev-vpc
-  signalforge-dev-alb
-  signalforge-dev-app
+Branch:
+  A Git line of code, such as feature/java-app, dev, or main.
 
-prod:
-  signalforge-prod-vpc
-  signalforge-prod-alb
-  signalforge-prod-app
+GitHub Environment:
+  A deployment boundary, such as dev or prod.
 ```
 
-How we separate them:
+A workflow can run from branch `feature/java-app` but still deploy to the GitHub
+Environment `dev`.
+
+In that case, the OIDC subject can be environment-based:
 
 ```text
-GitHub Environments:
-  dev, prod
-
-Terraform folders:
-  infra/envs/dev
-  infra/envs/prod
-
-Terraform variables:
-  environment = "dev"
-  environment = "prod"
-
-AWS tags:
-  Environment = dev
-  Environment = prod
-
-IAM roles:
-  signalforge-github-actions-dev
-  signalforge-github-actions-prod
+repo:PraveenB19/signalforge-ai-ops-lab:environment:dev
 ```
 
-Production note:
+If we wanted branch-based trust instead, the subject would look like:
 
 ```text
-Real enterprises often use separate AWS accounts for dev, stage, and prod.
-For this lab, same-account separation is acceptable for learning, but we still use naming, tags, and separate GitHub environments.
+repo:PraveenB19/signalforge-ai-ops-lab:ref:refs/heads/dev
+```
+
+For this lab, environment-based trust is better because it lines up with
+deployment controls. It lets us later add required reviewers for `prod`.
+
+## How Prod Approval Fits
+
+Dev flow:
+
+```text
+Developer pushes code
+  -> CI passes
+  -> Terraform plan/apply can run against GitHub Environment dev
+  -> AWS role signalforge-github-actions-dev is assumed
+```
+
+Prod flow later:
+
+```text
+Code is merged to main
+  -> CI passes
+  -> Prod deployment job requests GitHub Environment prod
+  -> GitHub pauses for required reviewer approval
+  -> After approval, GitHub exposes prod environment access
+  -> Job receives OIDC token with subject environment:prod
+  -> AWS allows assuming signalforge-github-actions-prod
+```
+
+Why this matters:
+
+```text
+Manual approval is enforced before production credentials are used.
+The AWS prod role trusts only the prod environment subject.
+Dev credentials cannot accidentally deploy prod if permissions and state are separated.
+```
+
+## Same Account vs Multiple Accounts
+
+For this learning lab:
+
+```text
+One AWS account
+Separate names, tags, Terraform state keys, GitHub environments, and IAM roles
+```
+
+Enterprise pattern:
+
+```text
+Separate AWS accounts for dev, stage, and prod
+Separate OIDC roles in each account
+Central logging and security monitoring
+Stricter production approvals
+```
+
+Interview answer:
+
+```text
+In this lab I am using one AWS account to control cost, but I still separate dev
+and prod logically using GitHub Environments, IAM roles, naming, tags, and
+Terraform state keys. In a mature enterprise setup I would prefer separate AWS
+accounts for stronger blast-radius isolation.
+```
+
+## Troubleshooting OIDC Failures
+
+Symptom:
+
+```text
+Not authorized to perform sts:AssumeRoleWithWebIdentity
+```
+
+Common causes:
+
+```text
+Wrong AWS account or role ARN
+Missing permissions: id-token: write
+Workflow job did not specify environment: dev
+Trust policy uses branch subject but workflow token has environment subject
+Trust policy uses environment subject but workflow token has branch subject
+Repo name, owner, or environment name has a typo
+OIDC provider audience is not sts.amazonaws.com
+```
+
+How to think about it:
+
+```text
+STS is the front desk.
+The trust policy is the guest list.
+If the token claims do not match the guest list exactly, STS refuses the badge.
 ```
 
 ## Interview Explanation
 
-Use this:
+Use this natural answer:
 
 ```text
-We use GitHub OIDC to authenticate GitHub Actions to AWS without storing long-lived AWS access keys. GitHub issues an OIDC token for the workflow. AWS IAM validates the token through the GitHub OIDC provider and checks the role trust policy. If the repo and environment claims match, AWS STS issues short-lived credentials. Terraform then uses those temporary credentials to create infrastructure. The role is restricted to the SignalForge repo and dev environment, which follows least-privilege and reduces credential leakage risk.
+I set up GitHub Actions to authenticate to AWS using OIDC instead of storing AWS
+access keys in GitHub. GitHub becomes the identity provider and AWS IAM trusts
+tokens from token.actions.githubusercontent.com. In the IAM role trust policy, I
+restricted the subject to my repo and the dev GitHub Environment. When a workflow
+runs with id-token: write and environment: dev, it requests an OIDC token, AWS STS
+validates the token claims, and then returns temporary credentials for the dev
+role. Terraform uses those credentials to create AWS resources. For production, I
+would use a separate prod role and GitHub prod Environment with required manual
+approval before credentials are issued.
 ```
-
-## Common Troubleshooting
-
-Issue:
-
-```text
-AWS says role cannot be assumed.
-```
-
-Check:
-
-```text
-Does workflow have permissions: id-token: write?
-Does workflow use environment: dev?
-Does trust policy sub equal repo:PraveenB19/signalforge-ai-ops-lab:environment:dev?
-Does audience equal sts.amazonaws.com?
-Is the OIDC provider URL token.actions.githubusercontent.com?
-Is the role ARN correct in GitHub variables?
-```
-
-Issue:
-
-```text
-Console wizard creates ref:refs/heads/environment:dev.
-```
-
-Meaning:
-
-```text
-AWS treated environment:dev as a branch name.
-```
-
-Fix:
-
-```text
-Update the trust policy manually using JSON or AWS CLI.
-```
-

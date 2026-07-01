@@ -233,6 +233,27 @@ Builds and publishes the artifact to a remote repository, if configured.
 
 ## Maven Commands We Use
 
+Current CI command:
+
+```bash
+mvn -B verify
+```
+
+Meaning:
+
+```text
+Runs the lifecycle through verify.
+For this app, that compiles code, runs tests, generates JaCoCo coverage, and
+packages the Spring Boot JAR.
+```
+
+Why this is the main CI command:
+
+```text
+It keeps the build story simple: one Maven lifecycle run creates the test
+evidence, coverage report, and artifact.
+```
+
 ```bash
 mvn -B test
 ```
@@ -267,7 +288,7 @@ For this project:
 
 ```bash
 cd app
-mvn -B package
+mvn -B verify
 ```
 
 Output:
@@ -482,4 +503,3 @@ Open SonarQube Cloud project dashboard and find the project key and organization
 - Maven POM reference: https://maven.apache.org/pom.html
 - Maven build lifecycle: https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html
 - SonarScanner for Maven: https://docs.sonarsource.com/sonarqube-cloud/analyzing-source-code/scanners/sonarscanner-for-maven/
-

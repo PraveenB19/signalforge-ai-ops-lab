@@ -88,7 +88,7 @@ S3 bucket:
   Stores Terraform state.
 
 S3 lockfile:
-  Handles Terraform state locking.
+  Handles Terraform state locking with modern Terraform S3 backend locking.
 ```
 
 ## GitHub OIDC Provider Values
@@ -192,6 +192,85 @@ AWS_ACCESS_KEY_ID
 AWS_SECRET_ACCESS_KEY
 ```
 
+## Terraform State And Locking
+
+Terraform state answers:
+
+```text
+What real AWS resources currently belong to this Terraform code?
+```
+
+Analogy:
+
+```text
+Terraform code is the building blueprint.
+AWS is the real building.
+Terraform state is the inspection notebook that maps blueprint items to real
+doors, rooms, wiring, and equipment.
+```
+
+Why remote state:
+
+```text
+Your laptop should not be the only place that remembers infrastructure.
+GitHub Actions and future teammates need the same state.
+S3 gives us durable, versioned, encrypted state storage.
+```
+
+Current state bucket:
+
+```text
+signalforge-tfstate-575108962419-us-east-1
+```
+
+Modern S3 backend locking:
+
+```hcl
+terraform {
+  backend "s3" {
+    bucket       = "signalforge-tfstate-575108962419-us-east-1"
+    key          = "dev/terraform.tfstate"
+    region       = "us-east-1"
+    use_lockfile = true
+  }
+}
+```
+
+What `use_lockfile = true` does:
+
+```text
+Terraform creates a temporary lock object next to the state file.
+That prevents two applies from changing the same state at the same time.
+```
+
+Why we are not starting with DynamoDB locking:
+
+```text
+Older Terraform S3 backends commonly used DynamoDB for state locking.
+Current Terraform S3 backend supports native S3 lockfiles with `use_lockfile`.
+DynamoDB locking is now deprecated in Terraform documentation, so this lab uses
+the newer S3 lockfile approach.
+```
+
+Production example:
+
+```text
+Two engineers trigger Terraform apply at the same time. Without locking, both
+could read old state and make conflicting AWS changes. With locking, one apply
+gets the lock and the other waits or fails safely.
+```
+
+State file security:
+
+```text
+Block public access
+Enable versioning
+Enable encryption
+Restrict IAM access
+Never commit terraform.tfstate to Git
+Use separate state keys for dev and prod
+```
+
 ## First AWS Bootstrap Order
 
 Recommended beginner-safe order:
@@ -280,7 +359,7 @@ In AWS Console:
 Example bucket name:
 
 ```text
-signalforge-tfstate-praveenb19-us-east-1
+signalforge-tfstate-575108962419-us-east-1
 ```
 
 Do not make it public.
@@ -289,3 +368,4 @@ Do not make it public.
 
 - GitHub OIDC with AWS: https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws
 - AWS configure credentials action: https://github.com/aws-actions/configure-aws-credentials
+- Terraform S3 backend: https://developer.hashicorp.com/terraform/language/backend/s3

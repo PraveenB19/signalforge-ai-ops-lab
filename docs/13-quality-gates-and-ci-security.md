@@ -16,6 +16,23 @@ Upload Trivy report
 Upload JAR artifact
 ```
 
+Why the order matters:
+
+```text
+Maven verify runs first because it creates the evidence.
+SonarQube reads that evidence.
+Trivy then checks the repository and dependency/security surface.
+Artifacts are uploaded only after the build and checks complete.
+```
+
+Production analogy:
+
+```text
+Before releasing a car, the factory does mechanical checks, safety checks, and
+paperwork. CI is the same idea for software: build proof, test proof, quality
+proof, security proof, then release the artifact.
+```
+
 ## Why Maven `verify`
 
 Command:
@@ -105,6 +122,20 @@ Coverage report configured in `pom.xml`:
 <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 ```
 
+Quality gate meaning:
+
+```text
+A quality gate is a pass/fail policy.
+It converts analysis results into a release decision.
+```
+
+Example gate language:
+
+```text
+Fail the pipeline if new code has blocker bugs, critical vulnerabilities,
+unreviewed security hotspots, too much duplication, or coverage below target.
+```
+
 ## JaCoCo
 
 JaCoCo measures Java code coverage.
@@ -163,6 +194,13 @@ Trivy report must be generated
 Artifact must upload successfully
 ```
 
+Why this is intentionally lighter:
+
+```text
+At the beginning, we first prove the tools are wired correctly.
+Then we gradually make the gates stricter so we understand every failure.
+```
+
 ## Production Quality Gate
 
 Later production-style gate:
@@ -181,6 +219,29 @@ Duplicated code <= 3%
 Trivy has no unfixed HIGH/CRITICAL findings
 No secrets detected
 Terraform scan has no critical misconfiguration
+```
+
+How we would enforce it:
+
+```text
+SonarQube Cloud:
+  Configure the Quality Gate in the SonarQube Cloud project.
+  Make the GitHub Actions Sonar step fail when the gate fails.
+
+Trivy:
+  Change exit-code from "0" to "1" for blocking severity.
+  Tune severity and ignore rules carefully.
+
+GitHub branch protection:
+  Require the CI workflow to pass before merging to dev or main.
+```
+
+Production exception process:
+
+```text
+Not every finding automatically blocks forever.
+For real production work, high-risk findings should either be fixed or have a
+documented exception with owner, reason, expiry date, and compensating control.
 ```
 
 ## Why We Do Not Enforce Everything Immediately
@@ -208,4 +269,3 @@ Use this in interviews:
 ```text
 Our CI pipeline builds confidence before deployment. Maven verify proves the app compiles, tests pass, a JAR is generated, and coverage is measured. SonarQube enforces code quality and security gates. Trivy adds supply-chain, secret, dependency, container, and IaC scanning. Only artifacts that pass these checks should be promoted to deployment environments.
 ```
-
