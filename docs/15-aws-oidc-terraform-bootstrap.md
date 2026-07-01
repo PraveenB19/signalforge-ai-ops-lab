@@ -6,6 +6,31 @@ This note explains how GitHub Actions will securely authenticate to AWS and run 
 
 We want GitHub Actions to create AWS infrastructure without storing long-lived AWS access keys in GitHub.
 
+## Project AWS Account
+
+Use only this AWS account for this lab:
+
+```text
+Account: 575108962419
+Admin user ARN: arn:aws:iam::575108962419:user/admin-user
+Region: us-east-1
+```
+
+Before any AWS change, verify:
+
+```bash
+aws sts get-caller-identity
+```
+
+Expected:
+
+```json
+{
+  "Account": "575108962419",
+  "Arn": "arn:aws:iam::575108962419:user/admin-user"
+}
+```
+
 Correct production pattern:
 
 ```text
@@ -264,4 +289,3 @@ Do not make it public.
 
 - GitHub OIDC with AWS: https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws
 - AWS configure credentials action: https://github.com/aws-actions/configure-aws-credentials
-
