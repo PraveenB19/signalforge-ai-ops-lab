@@ -36,6 +36,11 @@ jobs:
 
       - name: Build JAR
         run: mvn -B package -DskipTests
+      
+      - name: Run SonarQube Cloud scan
+        run: mvn -B sonar:sonar
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Run Trivy filesystem scan
         uses: aquasecurity/trivy-action@v0.36.0
