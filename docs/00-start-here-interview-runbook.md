@@ -14,6 +14,7 @@ See:
 
 ```text
 docs/00-documentation-standard.md
+docs/00-learning-map.md
 ```
 
 ## One-Minute Project Summary
@@ -476,6 +477,9 @@ The project is designed to intentionally break common production paths, observe 
 ```text
 Documentation style:
   docs/00-documentation-standard.md
+
+Memory and reading order:
+  docs/00-learning-map.md
 
 AWS architecture:
   docs/02-architecture.md

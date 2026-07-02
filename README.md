@@ -10,6 +10,10 @@ Documentation standard:
 
 [How SignalForge Docs Are Written](docs/00-documentation-standard.md)
 
+Learning map:
+
+[How To Memorize The Project Flow](docs/00-learning-map.md)
+
 This is not only a "three-tier app on AWS" project. The goal is to learn how modern teams build, deploy, secure, monitor, break, diagnose, and recover production-style systems.
 
 The lab is also designed to be disposable:
@@ -116,6 +120,7 @@ signalforge-ai-ops-lab/
     workflows/
   docs/
     00-documentation-standard.md
+    00-learning-map.md
     00-start-here-interview-runbook.md
     00-manual-prerequisites.md
     01-two-day-execution-plan.md
