@@ -2,6 +2,29 @@
 
 This note explains how GitHub Actions will securely authenticate to AWS and run Terraform.
 
+Bootstrap flow:
+
+```mermaid
+flowchart TD
+    AWS["AWS account 575108962419"] --> State["S3 Terraform state bucket"]
+    AWS --> Provider["IAM OIDC provider for GitHub"]
+    Provider --> Role["IAM role for GitHub Actions dev"]
+    Role --> Trust["Trust policy: repo + environment dev"]
+    Trust --> GitHub["GitHub repo variables + environment"]
+    GitHub --> Workflow["Terraform workflow"]
+    Workflow --> STS["AWS STS temporary credentials"]
+    STS --> Terraform["Terraform plan/apply"]
+```
+
+Plain-English explanation:
+
+```text
+Before Terraform can create the main AWS architecture, we need a secure bootstrap
+path. The state bucket stores Terraform's memory. The OIDC provider tells AWS how
+to trust GitHub identity tokens. The IAM role defines what a trusted workflow can
+do. GitHub Actions then assumes that role without long-lived AWS keys.
+```
+
 ## Goal
 
 We want GitHub Actions to create AWS infrastructure without storing long-lived AWS access keys in GitHub.

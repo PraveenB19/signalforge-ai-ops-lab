@@ -2,6 +2,36 @@
 
 These notes are written for scenario-based DevOps/SRE interviews.
 
+Troubleshooting mindset:
+
+```text
+1. Confirm customer impact.
+2. Check the golden signals.
+3. Identify which layer is failing.
+4. Mitigate first if production is impacted.
+5. Collect evidence.
+6. Fix root cause.
+7. Add prevention or alerting.
+```
+
+```mermaid
+flowchart TD
+    Alert["Alert or user report"] --> Impact["Confirm impact"]
+    Impact --> Signals["Check latency, traffic, errors, saturation"]
+    Signals --> Layer{"Which layer?"}
+    Layer --> ALB["ALB / target health"]
+    Layer --> App["Java app / JVM"]
+    Layer --> Host["EC2 / Linux"]
+    Layer --> DB["Database"]
+    Layer --> Network["Security group / route / NAT"]
+    ALB --> Mitigate["Mitigate"]
+    App --> Mitigate
+    Host --> Mitigate
+    DB --> Mitigate
+    Network --> Mitigate
+    Mitigate --> RCA["Root cause + prevention"]
+```
+
 ## Golden Signals
 
 The four golden signals:
@@ -11,6 +41,15 @@ Latency
 Traffic
 Errors
 Saturation
+```
+
+How to use them:
+
+```text
+Latency tells whether users are waiting.
+Traffic tells whether load changed.
+Errors tell whether requests are failing.
+Saturation tells whether a resource is running out.
 ```
 
 ### Latency
@@ -98,6 +137,31 @@ jmap -heap <pid>
 jmap -dump:live,format=b,file=/tmp/heap.hprof <pid>
 ```
 
+Troubleshooting flow:
+
+```mermaid
+flowchart TD
+    Memory["Memory alarm"] --> OS["free/top: is host memory high?"]
+    OS --> Process["ps/pidstat: which process uses memory?"]
+    Process --> JVM["jcmd: heap, GC, native memory"]
+    JVM --> Heap{"Heap growing?"}
+    Heap -->|Yes| Dump["Capture heap dump carefully"]
+    Heap -->|No| Native["Check threads, direct buffers, native memory"]
+    Dump --> Mitigate["Restart/scale if customer impact"]
+    Native --> Mitigate
+    Mitigate --> RCA["Analyze leak or traffic/deploy change"]
+```
+
+Production example:
+
+```text
+If memory is increasing in production, I first check whether the whole EC2 host
+is under pressure or only the Java process. Then I check JVM heap, GC behavior,
+thread count, and recent deployments. If users are impacted, I mitigate by
+scaling out or restarting one instance at a time behind the ALB, then collect a
+heap dump or JVM evidence for root cause.
+```
+
 Heap vs stack:
 
 ```text
@@ -157,6 +221,27 @@ Fix:
 Restart the process holding the deleted file, or rotate/truncate logs safely.
 ```
 
+File system flow:
+
+```mermaid
+flowchart TD
+    Disk["Disk alarm"] --> DF["df -h: block usage"]
+    DF --> Inodes["df -i: inode usage"]
+    Inodes --> DU["du: find large directories"]
+    DU --> Logs["Check /var/log and app logs"]
+    Logs --> Deleted["lsof +L1 for deleted open files"]
+    Deleted --> Cleanup["Rotate, truncate safely, or restart process"]
+```
+
+Interview answer:
+
+```text
+For disk issues I check both space and inode usage. If df shows full but du does
+not explain it, I suspect deleted files still held by a running process and use
+lsof +L1. I avoid blindly deleting files; I identify the owner, rotate logs, or
+restart the process safely.
+```
+
 ## 502 vs 503
 
 502 Bad Gateway:
@@ -187,6 +272,26 @@ Common causes:
 - App not listening
 - Security group blocks ALB to EC2
 
+ALB failure decision tree:
+
+```mermaid
+flowchart TD
+    FiveXX["ALB 5xx alarm"] --> Code{"502 or 503?"}
+    Code -->|502| BadGateway["Target responded badly or closed connection"]
+    Code -->|503| NoTargets["No healthy targets or no capacity"]
+    BadGateway --> CheckApp["Check app logs, port, protocol, timeout"]
+    NoTargets --> CheckHealth["Check target group health, health path, SG"]
+```
+
+Interview answer:
+
+```text
+For 502 I look at whether the ALB reached the target but received a bad response,
+such as app crash, timeout, wrong port, or protocol mismatch. For 503 I check
+target group health first because it usually means the ALB has no healthy target
+to send traffic to.
+```
+
 ## Security Interview Answer
 
 Do not answer only with "security groups."
@@ -208,3 +313,15 @@ Examples:
 - Detection: CloudWatch, VPC Flow Logs, ALB logs, GuardDuty later
 - Deployment: branch protection, approvals, artifact promotion, rollback
 
+Security answer structure:
+
+```mermaid
+flowchart LR
+    IAM["Identity"] --> Network["Network"]
+    Network --> Secrets["Secrets"]
+    Secrets --> Supply["Supply chain"]
+    Supply --> Runtime["Runtime"]
+    Runtime --> Data["Data"]
+    Data --> Detection["Detection"]
+    Detection --> Deploy["Deployment controls"]
+```

@@ -6,6 +6,28 @@ Workflow file:
 .github/workflows/java-ci.yaml
 ```
 
+Workflow flow:
+
+```mermaid
+flowchart TD
+    Trigger["push or pull_request"] --> Runner["ubuntu-latest runner"]
+    Runner --> Checkout["Checkout repository"]
+    Checkout --> Java["Set up Java 21"]
+    Java --> Maven["mvn -B verify"]
+    Maven --> Sonar["SonarQube Cloud scan"]
+    Sonar --> Trivy["Trivy filesystem scan"]
+    Trivy --> Reports["Upload Trivy report"]
+    Reports --> Jar["Upload JAR artifact"]
+```
+
+Plain-English explanation:
+
+```text
+GitHub starts a temporary Linux runner, downloads our code, installs Java, runs
+the Maven build, performs quality/security checks, and stores the resulting JAR
+and reports on the workflow run.
+```
+
 ## What This Workflow Does
 
 ```text

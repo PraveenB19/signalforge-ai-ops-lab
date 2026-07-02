@@ -2,6 +2,28 @@
 
 This note explains what we check in CI before an artifact is allowed to move toward deployment.
 
+Quality and security flow:
+
+```mermaid
+flowchart LR
+    Code["Code pushed"] --> Build["Maven verify"]
+    Build --> Tests["JUnit tests"]
+    Tests --> Coverage["JaCoCo coverage"]
+    Coverage --> Sonar["SonarQube quality gate"]
+    Build --> Trivy["Trivy security scan"]
+    Sonar --> Decision{"Release decision"}
+    Trivy --> Decision
+    Decision -->|Pass| Artifact["Artifact can move forward"]
+    Decision -->|Fail| Fix["Fix or approved exception"]
+```
+
+Plain-English explanation:
+
+```text
+Quality gates are traffic lights for releases. They do not make code perfect,
+but they stop clearly risky code from moving forward without review.
+```
+
 ## CI Order
 
 Current workflow order:

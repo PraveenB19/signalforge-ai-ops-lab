@@ -6,6 +6,10 @@ Start here before interviews:
 
 [SignalForge Interview Runbook](docs/00-start-here-interview-runbook.md)
 
+Documentation standard:
+
+[How SignalForge Docs Are Written](docs/00-documentation-standard.md)
+
 This is not only a "three-tier app on AWS" project. The goal is to learn how modern teams build, deploy, secure, monitor, break, diagnose, and recover production-style systems.
 
 The lab is also designed to be disposable:
@@ -111,6 +115,7 @@ signalforge-ai-ops-lab/
   .github/
     workflows/
   docs/
+    00-documentation-standard.md
     00-start-here-interview-runbook.md
     00-manual-prerequisites.md
     01-two-day-execution-plan.md

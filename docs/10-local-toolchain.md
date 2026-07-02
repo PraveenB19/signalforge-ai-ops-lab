@@ -2,6 +2,33 @@
 
 This file explains the local tools used by SignalForge AI Ops Lab and how to troubleshoot common path/version issues.
 
+Mental model:
+
+```text
+Your terminal does not magically know which Java, Maven, Terraform, or AWS CLI to
+use. It follows environment variables and PATH order.
+```
+
+```mermaid
+flowchart LR
+    Shell["zsh shell"] --> Env["~/.zshenv"]
+    Env --> JavaHome["JAVA_HOME"]
+    Env --> Path["PATH"]
+    JavaHome --> Maven["mvn -version"]
+    Path --> WhichJava["which java"]
+    Path --> WhichMaven["which mvn"]
+    WhichJava --> Build["mvn verify"]
+    Maven --> Build
+```
+
+Interview framing:
+
+```text
+When a local build fails, I first verify tool versions and paths. Many Java/Maven
+issues are not code problems; they are environment mismatches between JAVA_HOME,
+PATH, and the JDK Maven is actually using.
+```
+
 ## Current Local Versions
 
 Checked on July 1, 2026:
@@ -214,4 +241,3 @@ If asked how you troubleshoot Java/Maven version issues:
 ```text
 I check JAVA_HOME, PATH, which java, java -version, and mvn -version. If Maven and Java disagree, I know Maven is probably reading a different JAVA_HOME than the java command on PATH. I fix the shell config, restart the terminal, and verify again before running the build.
 ```
-

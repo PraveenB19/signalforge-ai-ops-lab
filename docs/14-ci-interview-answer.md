@@ -6,6 +6,31 @@ This note is a spoken explanation you can use when someone asks:
 What does your CI process look like?
 ```
 
+CI story diagram:
+
+```mermaid
+flowchart TD
+    Push["Developer push / PR"] --> CI["GitHub Actions CI"]
+    CI --> Verify["mvn -B verify"]
+    Verify --> Unit["JUnit unit tests"]
+    Verify --> Jar["JAR artifact"]
+    Verify --> Coverage["JaCoCo XML coverage"]
+    Coverage --> Sonar["SonarQube Cloud"]
+    Jar --> Trivy["Trivy scan"]
+    Sonar --> Gate{"Quality/security gate"}
+    Trivy --> Gate
+    Gate -->|Pass| Upload["Upload artifact/report"]
+    Gate -->|Fail| Block["Block merge/deploy"]
+```
+
+The key idea:
+
+```text
+CI should create confidence before deployment. It should answer: can the code
+build, do tests pass, is coverage visible, does quality pass, are obvious
+security risks caught, and is the deployable artifact traceable?
+```
+
 ## Short Answer
 
 ```text

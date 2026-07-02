@@ -2,6 +2,20 @@
 
 Read this first before interviews. It connects the project pieces into one story.
 
+Before reading the detailed docs, remember the documentation standard:
+
+```text
+Every concept should have a problem, diagram/flow, plain-English explanation,
+production example, commands/config, failure modes, troubleshooting path, and
+interview answer.
+```
+
+See:
+
+```text
+docs/00-documentation-standard.md
+```
+
 ## One-Minute Project Summary
 
 SignalForge AI Ops Lab is a production-style DevOps/SRE lab for a Java 21 Spring Boot application on AWS.
@@ -460,6 +474,15 @@ The project is designed to intentionally break common production paths, observe 
 ## Where To Read Next
 
 ```text
+Documentation style:
+  docs/00-documentation-standard.md
+
+AWS architecture:
+  docs/02-architecture.md
+
+GitHub Actions syntax:
+  docs/03-github-actions-learning-path.md
+
 CI flow:
   docs/14-ci-interview-answer.md
 
@@ -477,4 +500,26 @@ AWS/Terraform bootstrap:
 
 Production scenarios:
   docs/09-scenario-catalog.md
+```
+
+Question-to-doc map:
+
+```text
+"Design the architecture."
+  Read docs/02-architecture.md
+
+"Explain GitHub Actions from scratch."
+  Read docs/03-github-actions-learning-path.md and docs/11-github-actions-ci.md
+
+"How do you avoid AWS keys in GitHub?"
+  Read docs/16-oidc-explained-human-version.md
+
+"How does Terraform state/locking/drift work?"
+  Read docs/04-terraform-operations.md and docs/15-aws-oidc-terraform-bootstrap.md
+
+"How do you know the right artifact is deployed?"
+  Read docs/12-java-maven-pom-artifacts.md and docs/14-ci-interview-answer.md
+
+"How do you troubleshoot memory, disk, 502, 503, latency?"
+  Read docs/05-interview-troubleshooting-notes.md and docs/09-scenario-catalog.md
 ```

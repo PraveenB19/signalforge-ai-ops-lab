@@ -2,6 +2,37 @@
 
 This note explains what `pom.xml` does, how Maven builds a Java app, how artifacts are generated, and how those artifacts later move into AWS, Docker, Nexus, JFrog Artifactory, or S3.
 
+Build and artifact flow:
+
+```mermaid
+flowchart LR
+    Source["Java source code"] --> Pom["pom.xml"]
+    Pom --> Maven["mvn -B verify"]
+    Maven --> Compile["compile"]
+    Compile --> Tests["JUnit tests"]
+    Tests --> Coverage["JaCoCo coverage"]
+    Coverage --> Package["Spring Boot JAR"]
+    Package --> Artifact["Versioned artifact"]
+    Artifact --> Deploy["Deploy exact artifact"]
+```
+
+Plain-English explanation:
+
+```text
+Maven is the build engine. The POM is the instruction file. The output is a JAR
+artifact. In production, that artifact should be traceable to a commit, tested,
+scanned, stored, and then deployed without rebuilding on the server.
+```
+
+Interview talk track:
+
+```text
+For the Java app, Maven reads pom.xml, downloads dependencies, compiles the code,
+runs tests, creates the JaCoCo coverage report, and packages the Spring Boot JAR.
+That JAR is the deployable artifact. We promote that same artifact through
+environments instead of rebuilding separately.
+```
+
 ## Key Files And Paths
 
 Project paths:
@@ -205,6 +236,18 @@ Important idea:
 When you run a later phase, Maven runs earlier phases first.
 ```
 
+Lifecycle flow:
+
+```mermaid
+flowchart LR
+    Validate["validate"] --> Compile["compile"]
+    Compile --> Test["test"]
+    Test --> Package["package"]
+    Package --> Verify["verify"]
+    Verify --> Install["install"]
+    Install --> Deploy["deploy"]
+```
+
 Examples:
 
 ```bash
@@ -330,6 +373,26 @@ Enterprise stage:
 Publish artifact to Nexus or JFrog Artifactory.
 Promote same artifact from dev to stage to prod.
 Do not rebuild separately for each environment.
+```
+
+Artifact promotion diagram:
+
+```mermaid
+flowchart LR
+    CI["CI build"] --> Jar["signalforge-app.jar"]
+    Jar --> Scan["Quality + security scans"]
+    Scan --> Store["Artifact storage"]
+    Store --> Dev["Deploy dev"]
+    Dev --> Stage["Promote stage"]
+    Stage --> Prod["Promote prod"]
+```
+
+Why this matters:
+
+```text
+If production rebuilds the app, production may run different dependency versions
+or code than the artifact that passed CI. Build once and promote gives audit
+traceability.
 ```
 
 ## How Maven Publishes To Nexus Or JFrog Artifactory
