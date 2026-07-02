@@ -61,6 +61,12 @@ Arn: arn:aws:sts::575108962419:assumed-role/signalforge-github-actions-dev/...
 
 If this works, GitHub Actions is successfully authenticated to AWS through OIDC.
 
+Workflow file:
+
+```text
+.github/workflows/aws-oidc-smoke-test.yml
+```
+
 ## Goal
 
 We want GitHub Actions to create AWS infrastructure without storing long-lived AWS access keys in GitHub.
@@ -222,6 +228,85 @@ id-token: write:
 
 contents: read:
   Allows checkout to read repo code.
+```
+
+## OIDC Smoke-Test Workflow
+
+The smoke-test workflow proves the trust path before we create infrastructure.
+
+```yaml
+name: AWS OIDC Smoke Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  assume-dev-role:
+    runs-on: ubuntu-latest
+    environment: dev
+```
+
+Meaning:
+
+```text
+workflow_dispatch:
+  Allows us to run the workflow manually from the GitHub Actions UI.
+
+permissions.id-token: write:
+  Allows the job to request a GitHub OIDC token.
+
+permissions.contents: read:
+  Allows the checkout step to read repository files.
+
+environment: dev:
+  Makes the token subject match the IAM role trust policy:
+  repo:PraveenB19/signalforge-ai-ops-lab:environment:dev
+```
+
+AWS credential step:
+
+```yaml
+- name: Configure AWS credentials through OIDC
+  uses: aws-actions/configure-aws-credentials@v6.1.0
+  with:
+    role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME_DEV }}
+    aws-region: ${{ vars.AWS_REGION }}
+    role-session-name: signalforge-oidc-smoke-test
+    allowed-account-ids: "575108962419"
+```
+
+Meaning:
+
+```text
+role-to-assume:
+  The IAM role GitHub Actions should assume.
+
+aws-region:
+  AWS region used by the action and later AWS CLI/Terraform commands.
+
+role-session-name:
+  Human-readable session name visible in AWS logs.
+
+allowed-account-ids:
+  Safety check. The workflow fails if AWS returns credentials for a different
+  account.
+```
+
+Verification command:
+
+```bash
+aws sts get-caller-identity
+```
+
+Expected:
+
+```text
+Account: 575108962419
+Arn: arn:aws:sts::575108962419:assumed-role/signalforge-github-actions-dev/...
 ```
 
 ## GitHub Repository Variables And Secrets

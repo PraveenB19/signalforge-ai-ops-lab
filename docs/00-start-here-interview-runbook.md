@@ -70,7 +70,7 @@ Correct OIDC trust policy for GitHub environment dev
 Next major work:
 
 ```text
-GitHub OIDC smoke-test workflow
+Run GitHub OIDC smoke-test workflow
 Terraform dev environment skeleton
 VPC module
 ALB/EC2 deployment
@@ -336,7 +336,9 @@ the `dev` GitHub Environment should not be able to assume this role.
 What to test next:
 
 ```text
-Create a manual GitHub Actions workflow.
+Run the manual GitHub Actions workflow:
+  .github/workflows/aws-oidc-smoke-test.yml
+
 Use environment: dev.
 Use permissions: id-token: write and contents: read.
 Assume arn:aws:iam::575108962419:role/signalforge-github-actions-dev.
