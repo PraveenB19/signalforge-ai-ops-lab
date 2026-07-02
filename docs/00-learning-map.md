@@ -83,8 +83,10 @@ Read these when you want the whole project story:
 9. docs/16-oidc-explained-human-version.md
 10. docs/15-aws-oidc-terraform-bootstrap.md
 11. docs/04-terraform-operations.md
-12. docs/05-interview-troubleshooting-notes.md
-13. docs/09-scenario-catalog.md
+12. docs/17-terraform-enterprise-runbook.md
+13. docs/18-aws-network-flow.md
+14. docs/05-interview-troubleshooting-notes.md
+15. docs/09-scenario-catalog.md
 ```
 
 Use these as supporting docs:
@@ -170,31 +172,18 @@ Java CI works.
 SonarQube, JaCoCo, and Trivy are wired.
 Terraform state bucket exists.
 GitHub OIDC provider and dev IAM role exist.
+GitHub Actions OIDC smoke test succeeded against AWS account 575108962419.
+Terraform dev skeleton and planned VPC module exist locally.
 ```
 
 Next step:
 
 ```text
-Create a GitHub Actions workflow that tests AWS OIDC.
-The workflow should request an OIDC token, assume the dev IAM role, and run
-aws sts get-caller-identity.
-```
-
-Success looks like:
-
-```text
-The GitHub Actions log shows Account 575108962419 and an assumed-role ARN for
-signalforge-github-actions-dev.
-```
-
-After that:
-
-```text
-1. Add Terraform dev environment skeleton.
-2. Add S3 backend using use_lockfile = true.
-3. Run terraform fmt and validate.
-4. Add terraform plan workflow.
-5. Build the VPC module.
+1. Read docs/17-terraform-enterprise-runbook.md.
+2. Practice Terraform commands from the dev environment.
+3. Create stage and prod environment files by hand.
+4. Add Terraform plan workflow.
+5. Apply dev VPC only after plan review.
 6. Add ALB and EC2 deployment.
 ```
 
