@@ -2,6 +2,12 @@
 
 This note explains the GitHub Actions to AWS OIDC setup in a natural way.
 
+Visual reference:
+
+```text
+docs/visuals/github-oidc-aws-flow.svg
+```
+
 ## The One Sentence Version
 
 ```text
@@ -15,6 +21,152 @@ If you remember only one thing:
 ```text
 OIDC replaces stored AWS access keys with temporary credentials created only
 when a trusted workflow runs.
+```
+
+## Where We Are Right Now
+
+Current checkpoint:
+
+```text
+AWS OIDC provider exists.
+IAM role signalforge-github-actions-dev exists.
+Trust policy is restricted to GitHub Environment dev.
+Terraform state bucket exists.
+Next step is testing whether GitHub Actions can assume the AWS role.
+```
+
+What we did in AWS:
+
+```text
+1. Used the AWS IAM OIDC provider for GitHub:
+   token.actions.githubusercontent.com
+
+2. Created the AWS IAM role:
+   signalforge-github-actions-dev
+
+3. Updated the role trust policy:
+   Only this repo using GitHub Environment dev can assume the role.
+```
+
+What we did not do:
+
+```text
+We did not store AWS_ACCESS_KEY_ID in GitHub.
+We did not store AWS_SECRET_ACCESS_KEY in GitHub.
+We did not give every GitHub branch automatic AWS access.
+We did not give every GitHub repository access.
+```
+
+## What The IAM Role Is Doing
+
+The IAM role is the AWS identity that GitHub Actions temporarily becomes.
+
+Think of it like this:
+
+```text
+GitHub workflow:
+  Visitor requesting entry.
+
+OIDC token:
+  Visitor ID card issued by GitHub.
+
+IAM OIDC provider:
+  AWS configuration that says GitHub tokens can be evaluated.
+
+IAM role trust policy:
+  Security desk guest list.
+
+AWS STS:
+  Front desk that checks the ID card and issues a temporary badge.
+
+IAM role permissions policy:
+  Rooms/actions the temporary badge is allowed to use.
+
+Terraform:
+  Worker using the temporary badge to create or update AWS resources.
+```
+
+The role has two separate questions:
+
+```text
+Trust policy:
+  Who is allowed to assume this role?
+
+Permissions policy:
+  What can this role do after it is assumed?
+```
+
+So when someone asks, "Did you add GitHub as provider to the role?", the precise
+answer is:
+
+```text
+I configured AWS IAM with GitHub as an OIDC identity provider. Then I created an
+IAM role whose trust policy allows that GitHub OIDC provider to assume the role
+only when the token claims match my repo and GitHub Environment dev.
+```
+
+## What We Need To Test Now
+
+Now we need to prove that the trust relationship works.
+
+We will create a GitHub Actions smoke-test workflow that:
+
+```text
+1. Runs manually using workflow_dispatch.
+2. Uses GitHub Environment dev.
+3. Requests a GitHub OIDC token.
+4. Sends that token to AWS STS.
+5. Assumes signalforge-github-actions-dev.
+6. Runs aws sts get-caller-identity.
+7. Confirms the AWS account is 575108962419.
+```
+
+Success should look like:
+
+```text
+Account:
+  575108962419
+
+Arn:
+  arn:aws:sts::575108962419:assumed-role/signalforge-github-actions-dev/...
+```
+
+If that works:
+
+```text
+GitHub Actions can securely talk to AWS without static AWS keys.
+Then we can safely move to Terraform plan/apply workflows.
+```
+
+## Interview Follow-Up Answer
+
+If someone asks, "You used OIDC. Then what? How does it work?"
+
+Use this:
+
+```text
+I used GitHub OIDC to avoid storing long-lived AWS keys in GitHub. In AWS IAM, I
+configured GitHub as an OIDC identity provider using token.actions.githubusercontent.com.
+Then I created an IAM role for GitHub Actions and restricted its trust policy to
+my repository and GitHub Environment dev.
+
+When the workflow runs, GitHub issues a signed OIDC token for that job. The
+workflow sends that token to AWS STS using AssumeRoleWithWebIdentity. AWS checks
+that the token audience is sts.amazonaws.com and that the subject matches my repo
+and environment. If it matches, STS returns temporary AWS credentials for the
+role. Terraform then uses those temporary credentials to create or manage AWS
+resources.
+```
+
+If they ask, "What is the role doing here?"
+
+Use this:
+
+```text
+The role is the AWS identity the workflow temporarily assumes. The trust policy
+controls who can assume it, and the permissions policy controls what actions are
+allowed after it is assumed. OIDC proves the workflow identity; the IAM role
+defines AWS access.
 ```
 
 ## What We Are Trying To Solve

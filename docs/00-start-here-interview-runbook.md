@@ -70,7 +70,7 @@ Correct OIDC trust policy for GitHub environment dev
 Next major work:
 
 ```text
-GitHub OIDC test workflow
+GitHub OIDC smoke-test workflow
 Terraform dev environment skeleton
 VPC module
 ALB/EC2 deployment
@@ -332,6 +332,27 @@ Trusted GitHub subject:
 
 This means a random GitHub repo, a random branch, or a workflow that does not use
 the `dev` GitHub Environment should not be able to assume this role.
+
+What to test next:
+
+```text
+Create a manual GitHub Actions workflow.
+Use environment: dev.
+Use permissions: id-token: write and contents: read.
+Assume arn:aws:iam::575108962419:role/signalforge-github-actions-dev.
+Run aws sts get-caller-identity.
+Confirm the account is 575108962419.
+```
+
+If someone asks, "What exactly did you do with OIDC?":
+
+```text
+I configured AWS to trust GitHub as an OIDC provider, created an IAM role for
+GitHub Actions, and restricted the role trust policy to my repo and the dev
+GitHub Environment. When the workflow runs, GitHub issues an OIDC token. AWS STS
+validates the token and returns temporary credentials only if the token claims
+match the trust policy.
+```
 
 ## Dev vs Prod Strategy
 

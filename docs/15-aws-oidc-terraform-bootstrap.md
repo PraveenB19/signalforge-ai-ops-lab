@@ -25,6 +25,42 @@ to trust GitHub identity tokens. The IAM role defines what a trusted workflow ca
 do. GitHub Actions then assumes that role without long-lived AWS keys.
 ```
 
+## Current Bootstrap Status
+
+Completed:
+
+```text
+Terraform state bucket:
+  signalforge-tfstate-575108962419-us-east-1
+
+AWS OIDC provider:
+  token.actions.githubusercontent.com
+
+Dev IAM role:
+  signalforge-github-actions-dev
+
+Trust policy:
+  Restricted to repo PraveenB19/signalforge-ai-ops-lab and GitHub Environment dev
+```
+
+Next test:
+
+```text
+Create a GitHub Actions OIDC smoke-test workflow.
+The workflow should assume signalforge-github-actions-dev and run:
+
+aws sts get-caller-identity
+```
+
+Expected result:
+
+```text
+Account: 575108962419
+Arn: arn:aws:sts::575108962419:assumed-role/signalforge-github-actions-dev/...
+```
+
+If this works, GitHub Actions is successfully authenticated to AWS through OIDC.
+
 ## Goal
 
 We want GitHub Actions to create AWS infrastructure without storing long-lived AWS access keys in GitHub.
@@ -196,8 +232,8 @@ Use GitHub Variables for non-secret values:
 
 ```text
 AWS_REGION=us-east-1
-AWS_ROLE_TO_ASSUME_DEV=arn:aws:iam::<account-id>:role/signalforge-github-actions-dev
-TF_STATE_BUCKET=<unique-bucket-name>
+AWS_ROLE_TO_ASSUME_DEV=arn:aws:iam::575108962419:role/signalforge-github-actions-dev
+TF_STATE_BUCKET=signalforge-tfstate-575108962419-us-east-1
 ```
 
 Use GitHub Secrets only for actual secrets:
@@ -299,18 +335,20 @@ Use separate state keys for dev and prod
 Recommended beginner-safe order:
 
 ```text
-1. Confirm AWS account, region, billing alert, and MFA.
-2. Create S3 bucket for Terraform state.
-3. Enable S3 bucket versioning and encryption.
-4. Create GitHub OIDC provider in IAM.
-5. Create dev IAM role for GitHub Actions.
-6. Restrict trust policy to this repo and dev environment.
-7. Attach limited permissions for first Terraform phase.
-8. Create GitHub Environment named dev.
-9. Add GitHub repository variables.
-10. Create terraform plan workflow.
-11. Run plan.
-12. Add apply workflow with environment protection.
+1. Confirm AWS account, region, billing alert, and MFA.          DONE
+2. Create S3 bucket for Terraform state.                         DONE
+3. Enable S3 bucket versioning and encryption.                    DONE
+4. Create GitHub OIDC provider in IAM.                            DONE
+5. Create dev IAM role for GitHub Actions.                        DONE
+6. Restrict trust policy to this repo and dev environment.        DONE
+7. Create GitHub Environment named dev.                           NEXT / CONFIRM
+8. Add GitHub repository variables.                               NEXT / CONFIRM
+9. Create AWS OIDC smoke-test workflow.                           NEXT
+10. Run aws sts get-caller-identity from GitHub Actions.          NEXT
+11. Attach/tighten limited permissions for Terraform phase.       NEXT
+12. Create terraform plan workflow.                               LATER
+13. Run plan.                                                     LATER
+14. Add apply workflow with environment protection.                LATER
 ```
 
 ## First IAM Permission Strategy
@@ -368,24 +406,35 @@ signalforge-dev-vpc
 signalforge-prod-vpc
 ```
 
-## What To Do Manually Next
+## What To Do In GitHub Next
 
-In AWS Console:
-
-```text
-1. Confirm region: us-east-1.
-2. Confirm root MFA and IAM admin MFA.
-3. Confirm billing budget/alert exists.
-4. Create a globally unique S3 bucket name for Terraform state.
-```
-
-Example bucket name:
+In GitHub:
 
 ```text
-signalforge-tfstate-575108962419-us-east-1
+1. Confirm GitHub Environment exists:
+   Repo -> Settings -> Environments -> dev
+
+2. Add repository variables:
+   Repo -> Settings -> Secrets and variables -> Actions -> Variables
+
+3. Add:
+   AWS_REGION = us-east-1
+   AWS_ROLE_TO_ASSUME_DEV = arn:aws:iam::575108962419:role/signalforge-github-actions-dev
+   TF_STATE_BUCKET = signalforge-tfstate-575108962419-us-east-1
 ```
 
-Do not make it public.
+Do not add these AWS secrets:
+
+```text
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
+```
+
+Why:
+
+```text
+OIDC replaces those long-lived AWS keys with temporary credentials from STS.
+```
 
 ## Official References
 
