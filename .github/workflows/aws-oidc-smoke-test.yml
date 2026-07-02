@@ -2,6 +2,9 @@ name: AWS OIDC Smoke Test
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - feature/java-app
 
 permissions:
   id-token: write

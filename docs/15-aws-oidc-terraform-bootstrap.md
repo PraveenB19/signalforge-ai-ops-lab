@@ -67,6 +67,29 @@ Workflow file:
 .github/workflows/aws-oidc-smoke-test.yml
 ```
 
+Terraform plan workflow:
+
+```text
+.github/workflows/terraform-dev-plan.yml
+```
+
+The Terraform workflow uses the same OIDC trust path, then runs:
+
+```text
+terraform fmt -check
+terraform init
+terraform validate
+terraform plan -input=false
+```
+
+Important:
+
+```text
+This workflow only plans.
+It does not apply.
+It should not create AWS infrastructure yet.
+```
+
 ## Goal
 
 We want GitHub Actions to create AWS infrastructure without storing long-lived AWS access keys in GitHub.
@@ -239,6 +262,9 @@ name: AWS OIDC Smoke Test
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - feature/java-app
 
 permissions:
   id-token: write
@@ -255,6 +281,11 @@ Meaning:
 ```text
 workflow_dispatch:
   Allows us to run the workflow manually from the GitHub Actions UI.
+
+push:
+  Also runs this smoke test when we push to feature/java-app.
+  This helps GitHub detect and execute the workflow while it is still on the
+  feature branch.
 
 permissions.id-token: write:
   Allows the job to request a GitHub OIDC token.
@@ -428,11 +459,11 @@ Recommended beginner-safe order:
 6. Restrict trust policy to this repo and dev environment.        DONE
 7. Create GitHub Environment named dev.                           NEXT / CONFIRM
 8. Add GitHub repository variables.                               NEXT / CONFIRM
-9. Create AWS OIDC smoke-test workflow.                           NEXT
-10. Run aws sts get-caller-identity from GitHub Actions.          NEXT
+9. Create AWS OIDC smoke-test workflow.                           DONE
+10. Run aws sts get-caller-identity from GitHub Actions.          DONE
 11. Attach/tighten limited permissions for Terraform phase.       NEXT
-12. Create terraform plan workflow.                               LATER
-13. Run plan.                                                     LATER
+12. Create terraform plan workflow.                               DONE
+13. Run plan.                                                     DONE
 14. Add apply workflow with environment protection.                LATER
 ```
 

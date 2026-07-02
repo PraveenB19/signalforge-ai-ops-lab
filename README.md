@@ -143,6 +143,8 @@ signalforge-ai-ops-lab/
     14-ci-interview-answer.md
     15-aws-oidc-terraform-bootstrap.md
     16-oidc-explained-human-version.md
+    17-terraform-enterprise-runbook.md
+    18-aws-network-flow.md
     visuals/
       README.md
       signalforge-system-stack.svg

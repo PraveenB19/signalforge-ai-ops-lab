@@ -120,6 +120,7 @@ Commands:
 
 ```bash
 terraform plan
+terraform plan -input=false
 terraform plan -refresh-only
 terraform apply -refresh-only
 terraform state list
@@ -132,6 +133,9 @@ Command meanings:
 ```text
 terraform plan:
   Compare Terraform code/state with AWS and show what would change.
+
+terraform plan -input=false:
+  CI-friendly plan. Terraform fails instead of asking interactive questions.
 
 terraform plan -refresh-only:
   Refresh state from real AWS without proposing code-driven changes.
