@@ -239,6 +239,9 @@ name: AWS OIDC Smoke Test
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - feature/java-app
 
 permissions:
   id-token: write
@@ -255,6 +258,11 @@ Meaning:
 ```text
 workflow_dispatch:
   Allows us to run the workflow manually from the GitHub Actions UI.
+
+push:
+  Also runs this smoke test when we push to feature/java-app.
+  This helps GitHub detect and execute the workflow while it is still on the
+  feature branch.
 
 permissions.id-token: write:
   Allows the job to request a GitHub OIDC token.
