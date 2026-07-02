@@ -169,6 +169,122 @@ allowed after it is assumed. OIDC proves the workflow identity; the IAM role
 defines AWS access.
 ```
 
+## Enterprise Pattern For Many Repositories
+
+In a company with many repositories, teams usually avoid hand-clicking the same
+setup for every repo.
+
+Common pattern:
+
+```text
+GitHub organization:
+  Shared policies, reusable workflows, common variables, branch protection rules.
+
+Application repository:
+  App code, app-specific workflow file, app-specific variables.
+
+GitHub environments:
+  dev, stage, prod deployment boundaries for that repo.
+
+AWS accounts:
+  Usually separate dev/stage/prod accounts in mature environments.
+
+IAM roles:
+  Separate roles per environment, often created by Terraform.
+```
+
+Do companies create environments for every repo?
+
+```text
+Usually yes, if that repo deploys independently.
+
+Example:
+  payment-service repo:
+    dev, stage, prod
+
+  catalog-service repo:
+    dev, stage, prod
+
+  notification-service repo:
+    dev, stage, prod
+```
+
+But they automate it using:
+
+```text
+Repository templates
+Reusable GitHub Actions workflows
+Terraform modules
+GitHub organization variables/secrets
+Platform engineering golden paths
+```
+
+## Variables And Secrets In Enterprise
+
+Use this mental model:
+
+```text
+Organization variables:
+  Shared non-secret defaults.
+  Example: AWS_REGION = us-east-1
+
+Repository variables:
+  App-specific non-secret values.
+  Example: SERVICE_NAME = signalforge
+
+Environment variables:
+  Environment-specific non-secret values.
+  Example: AWS_ROLE_TO_ASSUME_DEV, AWS_ROLE_TO_ASSUME_PROD
+
+Secrets:
+  Actual sensitive values.
+  Example: SONAR_TOKEN, SLACK_WEBHOOK_URL, API keys
+```
+
+For AWS OIDC specifically:
+
+```text
+We do not store AWS_ACCESS_KEY_ID.
+We do not store AWS_SECRET_ACCESS_KEY.
+We only store non-secret values like role ARN and region.
+```
+
+Why role ARN is not a secret:
+
+```text
+Knowing the role ARN is not enough to use it.
+AWS still checks the OIDC token claims against the role trust policy.
+```
+
+Simple memory version:
+
+```text
+GitHub stores "which role should I ask for?"
+AWS stores "who is allowed to assume this role?"
+STS decides "do these claims match?"
+```
+
+## The Human Version To Memorize
+
+Repeat this until it feels natural:
+
+```text
+GitHub does not hold AWS keys.
+The workflow asks GitHub for an identity token.
+AWS STS checks that token against the IAM role trust policy.
+If repo, audience, and environment match, STS gives temporary credentials.
+Terraform uses those temporary credentials.
+```
+
+Even shorter:
+
+```text
+GitHub proves identity.
+AWS verifies trust.
+STS gives temporary credentials.
+Terraform uses them.
+```
+
 ## What We Are Trying To Solve
 
 We want GitHub Actions to create AWS infrastructure using Terraform.

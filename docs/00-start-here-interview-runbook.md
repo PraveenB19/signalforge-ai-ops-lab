@@ -65,13 +65,15 @@ Terraform state S3 bucket
 GitHub OIDC provider in AWS
 GitHub Actions dev IAM role
 Correct OIDC trust policy for GitHub environment dev
+AWS OIDC smoke-test workflow
+Terraform dev backend/provider skeleton
+Terraform dev plan workflow
 ```
 
 Next major work:
 
 ```text
-Run GitHub OIDC smoke-test workflow
-Terraform dev environment skeleton
+Run Terraform dev plan workflow in GitHub Actions
 VPC module
 ALB/EC2 deployment
 CloudWatch metrics and alerts
