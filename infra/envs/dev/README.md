@@ -5,8 +5,7 @@ This folder is the first Terraform environment for the lab.
 Current goal:
 
 ```text
-Prove Terraform can initialize against the S3 backend and read AWS identity
-through the GitHub OIDC role before we create real infrastructure.
+Plan the first VPC network boundary without applying it yet.
 ```
 
 Current files:
@@ -25,18 +24,17 @@ locals.tf:
   Builds naming and common tags.
 
 main.tf:
-  Reads current AWS identity and region.
+  Reads current AWS identity/region and calls the VPC module.
 
 outputs.tf:
   Prints account, caller ARN, region, and name prefix.
 ```
 
-Why start with data sources:
+Why start with plan-only:
 
 ```text
-Data sources read information.
-They do not create AWS resources.
-This is a safe first Terraform test after OIDC.
+Planning shows exactly what Terraform would create before anything exists in
+AWS. This is how we review infrastructure safely in CI.
 ```
 
 Expected caller later from GitHub Actions:
@@ -48,9 +46,8 @@ arn:aws:sts::575108962419:assumed-role/signalforge-github-actions-dev/...
 Next after this works:
 
 ```text
-1. Add VPC module.
-2. Add public/private subnets.
-3. Add route tables and internet gateway.
-4. Add security groups.
-5. Add ALB and EC2 app tier.
+1. Review VPC plan output.
+2. Decide whether to add NAT Gateway now or later.
+3. Add security groups.
+4. Add ALB and EC2 app tier.
 ```

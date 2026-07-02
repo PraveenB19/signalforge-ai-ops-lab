@@ -463,7 +463,7 @@ Recommended beginner-safe order:
 10. Run aws sts get-caller-identity from GitHub Actions.          DONE
 11. Attach/tighten limited permissions for Terraform phase.       NEXT
 12. Create terraform plan workflow.                               DONE
-13. Run plan.                                                     NEXT
+13. Run plan.                                                     DONE
 14. Add apply workflow with environment protection.                LATER
 ```
 

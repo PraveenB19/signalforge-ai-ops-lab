@@ -9,18 +9,18 @@ envs/dev:
   First Terraform environment.
   Uses S3 remote state.
   Uses S3 native lockfile.
-  Starts with safe AWS identity/region data sources before creating resources.
+  Plans the first VPC network boundary.
 ```
 
 Planned components:
 
 - Terraform backend
 - GitHub OIDC IAM role
-- VPC
-- Public subnets
-- Private app subnets
-- Private DB subnets
-- Internet Gateway
+- VPC: planned
+- Public subnets: planned
+- Private app subnets: planned
+- Private DB subnets: planned
+- Internet Gateway: planned
 - Optional NAT Gateway
 - ALB
 - EC2

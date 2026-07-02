@@ -68,12 +68,12 @@ Correct OIDC trust policy for GitHub environment dev
 AWS OIDC smoke-test workflow
 Terraform dev backend/provider skeleton
 Terraform dev plan workflow
+Terraform dev plan passed through GitHub OIDC
 ```
 
 Next major work:
 
 ```text
-Run Terraform dev plan workflow in GitHub Actions
 VPC module
 ALB/EC2 deployment
 CloudWatch metrics and alerts
