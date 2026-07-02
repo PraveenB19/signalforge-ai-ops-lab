@@ -2,6 +2,22 @@
 
 SignalForge AI Ops Lab is a hands-on DevOps and reliability engineering project for deploying a Java application on AWS with GitHub Actions, Terraform, security scanning, observability, incident simulation, and AI-assisted troubleshooting.
 
+Start here before interviews:
+
+[SignalForge Interview Runbook](docs/00-start-here-interview-runbook.md)
+
+Documentation standard:
+
+[How SignalForge Docs Are Written](docs/00-documentation-standard.md)
+
+Learning map:
+
+[How To Memorize The Project Flow](docs/00-learning-map.md)
+
+Visual learning pack:
+
+[SignalForge Visual Learning Pack](docs/visuals/README.md)
+
 This is not only a "three-tier app on AWS" project. The goal is to learn how modern teams build, deploy, secure, monitor, break, diagnose, and recover production-style systems.
 
 The lab is also designed to be disposable:
@@ -107,6 +123,9 @@ signalforge-ai-ops-lab/
   .github/
     workflows/
   docs/
+    00-documentation-standard.md
+    00-learning-map.md
+    00-start-here-interview-runbook.md
     00-manual-prerequisites.md
     01-two-day-execution-plan.md
     02-architecture.md
@@ -121,6 +140,18 @@ signalforge-ai-ops-lab/
     11-github-actions-ci.md
     12-java-maven-pom-artifacts.md
     13-quality-gates-and-ci-security.md
+    14-ci-interview-answer.md
+    15-aws-oidc-terraform-bootstrap.md
+    16-oidc-explained-human-version.md
+    visuals/
+      README.md
+      signalforge-system-stack.svg
+      java-linux-memory-map.svg
+      network-connectivity-map.svg
+      ci-quality-security-gates.svg
+      local-toolchain-path-map.svg
+      github-oidc-aws-flow.svg
+      terraform-state-drift-map.svg
 ```
 
 ## Manual Work Required From You
@@ -159,7 +190,15 @@ Day 2:
 
 ## Current Status
 
-Phase 0 is in progress: project structure, documentation, branding, manual checklist, and learning plan.
+Current checkpoint:
+
+```text
+Java app and CI are working.
+SonarQube Cloud, JaCoCo, and Trivy are integrated.
+Terraform state bucket is created.
+GitHub OIDC provider and dev IAM role are configured.
+Next step is testing GitHub Actions -> AWS OIDC role assumption, then building Terraform dev infrastructure.
+```
 
 ## Beginner Learning Style
 

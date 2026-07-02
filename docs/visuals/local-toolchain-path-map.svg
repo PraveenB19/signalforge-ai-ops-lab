@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="780" viewBox="0 0 1400 780">
+  <defs>
+    <style>
+      .bg { fill: #090e15; }
+      .title { fill: #e7edf6; font: 700 26px Inter, Arial, sans-serif; }
+      .sub { fill: #9aa8ba; font: 14px Inter, Arial, sans-serif; }
+      .label { fill: #dce6f3; font: 700 16px Inter, Arial, sans-serif; }
+      .small { fill: #9aa8ba; font: 13px Inter, Arial, sans-serif; }
+      .tiny { fill: #7f8da0; font: 12px Inter, Arial, sans-serif; }
+      .box { fill: #141b24; stroke: #334155; stroke-width: 1.2; rx: 12; }
+      .blue { stroke: #3b82f6; }
+      .green { stroke: #22c55e; }
+      .orange { stroke: #f97316; }
+      .purple { stroke: #a855f7; }
+      .yellow { stroke: #eab308; }
+      .chip { fill: #111827; stroke: #334155; rx: 10; }
+      .line { stroke: #38bdf8; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+      .warn { stroke: #f97316; stroke-width: 2; stroke-dasharray: 7 6; fill: none; marker-end: url(#arrowOrange); }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#38bdf8"/>
+    </marker>
+    <marker id="arrowOrange" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#f97316"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1400" height="780"/>
+  <text x="700" y="46" text-anchor="middle" class="title">Local Toolchain Path Resolution</text>
+  <text x="700" y="74" text-anchor="middle" class="sub">Installed software is not enough. The shell must find the correct executable and Maven must use the correct JDK.</text>
+
+  <rect x="60" y="130" width="220" height="110" class="box blue"/>
+  <text x="92" y="166" class="label">Terminal</text>
+  <text x="92" y="194" class="small">zsh starts a session</text>
+  <text x="92" y="218" class="tiny">source of commands</text>
+
+  <rect x="335" y="130" width="230" height="110" class="box green"/>
+  <text x="367" y="166" class="label">Shell config</text>
+  <text x="367" y="194" class="small">~/.zshenv</text>
+  <text x="367" y="218" class="tiny">exports variables</text>
+
+  <rect x="620" y="90" width="235" height="110" class="box orange"/>
+  <text x="652" y="126" class="label">JAVA_HOME</text>
+  <text x="652" y="154" class="small">JDK root path</text>
+  <text x="652" y="178" class="tiny">Maven reads this</text>
+
+  <rect x="620" y="230" width="235" height="110" class="box orange"/>
+  <text x="652" y="266" class="label">PATH</text>
+  <text x="652" y="294" class="small">search order</text>
+  <text x="652" y="318" class="tiny">which java / which mvn</text>
+
+  <rect x="920" y="90" width="200" height="110" class="box purple"/>
+  <text x="952" y="126" class="label">java</text>
+  <text x="952" y="154" class="small">java -version</text>
+  <text x="952" y="178" class="tiny">runtime command</text>
+
+  <rect x="920" y="230" width="200" height="110" class="box purple"/>
+  <text x="952" y="266" class="label">mvn</text>
+  <text x="952" y="294" class="small">mvn -version</text>
+  <text x="952" y="318" class="tiny">build command</text>
+
+  <rect x="1180" y="160" width="160" height="110" class="box yellow"/>
+  <text x="1212" y="196" class="label">Build</text>
+  <text x="1212" y="224" class="small">mvn verify</text>
+  <text x="1212" y="248" class="tiny">uses JDK + Maven</text>
+
+  <path class="line" d="M280 185 H335"/>
+  <path class="line" d="M565 185 C590 185 590 145 620 145"/>
+  <path class="line" d="M565 185 C590 185 590 285 620 285"/>
+  <path class="line" d="M855 145 H920"/>
+  <path class="line" d="M855 285 H920"/>
+  <path class="line" d="M1120 145 C1150 145 1150 215 1180 215"/>
+  <path class="line" d="M1120 285 C1150 285 1150 215 1180 215"/>
+
+  <rect x="85" y="420" width="295" height="220" class="box blue"/>
+  <text x="115" y="455" class="label">Check commands</text>
+  <text x="115" y="490" class="small">echo $JAVA_HOME</text>
+  <text x="115" y="518" class="small">which java</text>
+  <text x="115" y="546" class="small">java -version</text>
+  <text x="115" y="574" class="small">which mvn</text>
+  <text x="115" y="602" class="small">mvn -version</text>
+
+  <rect x="430" y="420" width="360" height="220" class="box orange"/>
+  <text x="460" y="455" class="label">Common mismatch</text>
+  <text x="460" y="490" class="small">java -version shows Java 21</text>
+  <text x="460" y="518" class="small">mvn -version shows Java 8/17</text>
+  <text x="460" y="556" class="tiny">Meaning:</text>
+  <text x="482" y="584" class="small">PATH and JAVA_HOME disagree</text>
+
+  <rect x="840" y="420" width="475" height="220" class="box green"/>
+  <text x="870" y="455" class="label">Fix pattern</text>
+  <text x="870" y="490" class="small">Update ~/.zshenv with correct JAVA_HOME</text>
+  <text x="870" y="518" class="small">Put correct Java/Maven bins early in PATH</text>
+  <text x="870" y="546" class="small">Open a new terminal</text>
+  <text x="870" y="574" class="small">Verify again before running builds</text>
+
+  <path class="warn" d="M610 420 V360"/>
+  <text x="700" y="712" text-anchor="middle" class="sub">Memory hook: install puts tools on disk; PATH decides what runs; JAVA_HOME decides what Maven uses.</text>
+</svg>

@@ -4,6 +4,27 @@ The main reason for automation in this project is repeatability.
 
 We want to create infrastructure, learn from it, break it, fix it, destroy it, and recreate it without manually rebuilding everything.
 
+Big picture:
+
+```mermaid
+flowchart LR
+    Code["Git + Terraform + workflows"] --> Create["Create lab"]
+    Create --> Practice["Deploy + simulate issues"]
+    Practice --> Learn["Update notes/runbooks"]
+    Learn --> Destroy["Destroy disposable resources"]
+    Destroy --> Recreate["Recreate tomorrow"]
+    Recreate --> Practice
+```
+
+Interview talk track:
+
+```text
+I designed the lab to be disposable because repeatability is the point of
+automation. The AWS console should not be the source of truth. Git, Terraform,
+remote state, workflows, and artifacts should let me recreate the same
+environment when I need it and destroy it when I am done practicing.
+```
+
 ## Daily Workflow
 
 ```text
@@ -125,6 +146,27 @@ prod destroy:
   disabled or heavily restricted
 ```
 
+Destroy decision flow:
+
+```mermaid
+flowchart TD
+    Request["Destroy requested"] --> Env{"Which environment?"}
+    Env -->|dev| Confirm["Manual workflow confirmation"]
+    Env -->|stage| Approval["Required reviewer approval"]
+    Env -->|prod| Block["Blocked or break-glass only"]
+    Confirm --> Destroy["terraform destroy"]
+    Approval --> Destroy
+    Block --> Review["Incident/change review"]
+```
+
+Production explanation:
+
+```text
+Destroy is normal for a learning dev lab, but dangerous for production. In
+production I would disable automated destroy or require a very strict break-glass
+process with approvals, backups, and change records.
+```
+
 ## Beginner Explanation: terraform destroy
 
 Command:
@@ -149,4 +191,3 @@ Important:
 Terraform only destroys resources it manages in state.
 If a resource was created manually and never imported, Terraform may not delete it.
 ```
-

@@ -50,6 +50,29 @@ Never commit:
 
 Use GitHub Secrets, AWS Secrets Manager, SSM Parameter Store, and GitHub OIDC.
 
+## AWS Account Rule
+
+Use only this AWS identity for this project unless the user explicitly changes it:
+
+```text
+Account: 575108962419
+User ARN: arn:aws:iam::575108962419:user/admin-user
+```
+
+Before creating, updating, or deleting AWS resources, verify the active identity:
+
+```bash
+aws sts get-caller-identity
+```
+
+Expected account:
+
+```text
+575108962419
+```
+
+Do not use other local AWS profiles or accounts for this project.
+
 ## Scenario Focus
 
 Every implementation should support real production scenarios:
@@ -65,4 +88,3 @@ Every implementation should support real production scenarios:
 - Staging works but production fails
 - Missing NAT Gateway
 - Failed deployment or rollback
-

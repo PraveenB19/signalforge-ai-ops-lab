@@ -2,6 +2,34 @@
 
 This file lists what you need to do manually before automation can take over.
 
+Why manual work exists:
+
+```text
+Some bootstrap items must exist before automation can safely run.
+Examples: GitHub repo, AWS account, billing guardrails, first IAM/OIDC trust,
+SonarCloud token, and Slack webhook.
+```
+
+Bootstrap flow:
+
+```mermaid
+flowchart LR
+    Accounts["Create/confirm accounts"] --> Safety["Enable billing + MFA guardrails"]
+    Safety --> Repo["Create GitHub repo"]
+    Repo --> Quality["Create SonarCloud project/token"]
+    Quality --> Alerts["Create Slack workspace/webhook later"]
+    Alerts --> OIDC["Create AWS OIDC trust"]
+    OIDC --> Automation["GitHub Actions + Terraform take over"]
+```
+
+Interview explanation:
+
+```text
+I separate one-time bootstrap from repeatable automation. Accounts, billing
+alerts, and initial trust setup are manual guardrails. After that, GitHub Actions
+and Terraform should own repeatable infrastructure creation and deletion.
+```
+
 ## Next 30 Minutes
 
 Do these first:
@@ -72,6 +100,14 @@ Before creating infrastructure:
 6. Prefer small EC2 instances for the lab.
 7. Use RDS free-tier eligible where possible, or delay RDS until app deployment works.
 
+Production-style cost guardrail:
+
+```text
+Before creating infrastructure, I make sure billing alerts exist, resources are
+tagged, and expensive always-on resources such as NAT Gateway or RDS are used
+intentionally. In this lab, we destroy disposable resources after practice.
+```
+
 ## GitHub Secrets We Will Eventually Need
 
 ```text
@@ -98,3 +134,10 @@ GitHub Actions
 
 No long-lived AWS access keys should be stored in GitHub.
 
+Plain-English explanation:
+
+```text
+This is like telling AWS: "If GitHub shows you a valid ID card from this exact
+repo and environment, give it a temporary badge for this role." We are not
+handing GitHub a permanent AWS key.
+```

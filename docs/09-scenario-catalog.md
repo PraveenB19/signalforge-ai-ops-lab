@@ -2,6 +2,32 @@
 
 This file tracks the production-style scenarios we will simulate and practice.
 
+Use this catalog like an incident menu:
+
+```mermaid
+flowchart TD
+    Symptom["Production symptom"] --> Slow["Slow app / high latency"]
+    Symptom --> Errors["5xx errors"]
+    Symptom --> Saturation["CPU / memory / disk pressure"]
+    Symptom --> Deploy["Deploy or Terraform issue"]
+    Slow --> Memory["High Java memory"]
+    Slow --> CPU["High CPU"]
+    Errors --> BadGateway["ALB 502"]
+    Errors --> NoTargets["ALB 503"]
+    Saturation --> Disk["Disk full"]
+    Deploy --> Drift["Manual console drift"]
+    Deploy --> EnvDiff["Stage works, prod fails"]
+    Deploy --> Network["No NAT or security group removed"]
+```
+
+How to speak about any scenario:
+
+```text
+I start from customer impact, then check metrics to locate the failing layer. I
+mitigate if production is impacted, collect evidence, fix root cause, and add an
+alert or runbook so the same issue is easier to catch next time.
+```
+
 Each scenario should answer:
 
 ```text
@@ -436,4 +462,3 @@ Use VPC endpoints for AWS services.
 Bake AMIs with needed packages.
 Avoid internet dependency at runtime.
 ```
-
