@@ -5,6 +5,12 @@ Use this doc when you feel, "I know many tools, but how do they connect?"
 The best way to remember this project is to learn it from the bottom up, like a
 stack. Troubleshooting becomes easier when you can ask, "Which layer is failing?"
 
+For visual revision, also open:
+
+```text
+docs/visuals/README.md
+```
+
 ## The Stack
 
 ```mermaid
@@ -68,16 +74,17 @@ Read these when you want the whole project story:
 ```text
 1. docs/00-start-here-interview-runbook.md
 2. docs/00-learning-map.md
-3. docs/02-architecture.md
-4. docs/03-github-actions-learning-path.md
-5. docs/11-github-actions-ci.md
-6. docs/12-java-maven-pom-artifacts.md
-7. docs/13-quality-gates-and-ci-security.md
-8. docs/16-oidc-explained-human-version.md
-9. docs/15-aws-oidc-terraform-bootstrap.md
-10. docs/04-terraform-operations.md
-11. docs/05-interview-troubleshooting-notes.md
-12. docs/09-scenario-catalog.md
+3. docs/visuals/README.md
+4. docs/02-architecture.md
+5. docs/03-github-actions-learning-path.md
+6. docs/11-github-actions-ci.md
+7. docs/12-java-maven-pom-artifacts.md
+8. docs/13-quality-gates-and-ci-security.md
+9. docs/16-oidc-explained-human-version.md
+10. docs/15-aws-oidc-terraform-bootstrap.md
+11. docs/04-terraform-operations.md
+12. docs/05-interview-troubleshooting-notes.md
+13. docs/09-scenario-catalog.md
 ```
 
 Use these as supporting docs:

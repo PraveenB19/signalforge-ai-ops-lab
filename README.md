@@ -14,6 +14,10 @@ Learning map:
 
 [How To Memorize The Project Flow](docs/00-learning-map.md)
 
+Visual learning pack:
+
+[SignalForge Visual Learning Pack](docs/visuals/README.md)
+
 This is not only a "three-tier app on AWS" project. The goal is to learn how modern teams build, deploy, secure, monitor, break, diagnose, and recover production-style systems.
 
 The lab is also designed to be disposable:
@@ -139,6 +143,15 @@ signalforge-ai-ops-lab/
     14-ci-interview-answer.md
     15-aws-oidc-terraform-bootstrap.md
     16-oidc-explained-human-version.md
+    visuals/
+      README.md
+      signalforge-system-stack.svg
+      java-linux-memory-map.svg
+      network-connectivity-map.svg
+      ci-quality-security-gates.svg
+      local-toolchain-path-map.svg
+      github-oidc-aws-flow.svg
+      terraform-state-drift-map.svg
 ```
 
 ## Manual Work Required From You
