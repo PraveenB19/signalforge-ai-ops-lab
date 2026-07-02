@@ -1,0 +1,39 @@
+name: AWS OIDC Smoke Test
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/java-app
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  assume-dev-role:
+    name: Assume AWS dev role
+    runs-on: ubuntu-latest
+    environment: dev
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials through OIDC
+        uses: aws-actions/configure-aws-credentials@v6.1.0
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME_DEV }}
+          aws-region: ${{ vars.AWS_REGION }}
+          role-session-name: signalforge-oidc-smoke-test
+          allowed-account-ids: "575108962419"
+
+      - name: Confirm caller identity
+        run: |
+          aws sts get-caller-identity
+          ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
+          if [ "$ACCOUNT_ID" != "575108962419" ]; then
+            echo "Expected AWS account 575108962419 but got $ACCOUNT_ID"
+            exit 1
+          fi
+          echo "OIDC smoke test passed for AWS account $ACCOUNT_ID"

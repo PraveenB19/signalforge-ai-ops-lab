@@ -31,11 +31,8 @@ jobs:
           java-version: "21"
           cache: maven
 
-      - name: Run tests
-        run: mvn -B test
-
-      - name: Build JAR
-        run: mvn -B package -DskipTests
+      - name: Run tests, build JAR, and generate coverage
+        run: mvn -B verify
       
       - name: Run SonarQube Cloud scan
         run: mvn -B sonar:sonar

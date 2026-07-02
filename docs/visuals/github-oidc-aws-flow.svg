@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="780" viewBox="0 0 1400 780">
+  <defs>
+    <style>
+      .bg { fill: #090e15; }
+      .title { fill: #e7edf6; font: 700 26px Inter, Arial, sans-serif; }
+      .sub { fill: #9aa8ba; font: 14px Inter, Arial, sans-serif; }
+      .label { fill: #dce6f3; font: 700 16px Inter, Arial, sans-serif; }
+      .small { fill: #9aa8ba; font: 13px Inter, Arial, sans-serif; }
+      .tiny { fill: #7f8da0; font: 12px Inter, Arial, sans-serif; }
+      .box { fill: #141b24; stroke: #334155; stroke-width: 1.2; rx: 12; }
+      .gh { stroke: #3b82f6; }
+      .aws { stroke: #f97316; }
+      .green { stroke: #22c55e; }
+      .purple { stroke: #a855f7; }
+      .red { stroke: #ef4444; }
+      .chip { fill: #111827; stroke: #334155; rx: 10; }
+      .line { stroke: #38bdf8; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+      .orangeLine { stroke: #f97316; stroke-width: 2.2; fill: none; marker-end: url(#arrowOrange); }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#38bdf8"/>
+    </marker>
+    <marker id="arrowOrange" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#f97316"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1400" height="780"/>
+  <text x="700" y="46" text-anchor="middle" class="title">GitHub OIDC To AWS</text>
+  <text x="700" y="74" text-anchor="middle" class="sub">No long-lived AWS keys in GitHub. GitHub proves workflow identity; AWS STS issues short-lived credentials.</text>
+
+  <rect x="55" y="130" width="285" height="440" class="box gh"/>
+  <text x="83" y="165" class="label">GitHub Side</text>
+  <rect x="85" y="210" width="225" height="70" class="chip"/>
+  <text x="110" y="238" class="label">Workflow job</text>
+  <text x="110" y="262" class="small">environment: dev</text>
+  <rect x="85" y="310" width="225" height="70" class="chip"/>
+  <text x="110" y="338" class="label">Permissions</text>
+  <text x="110" y="362" class="small">id-token: write</text>
+  <rect x="85" y="410" width="225" height="70" class="chip"/>
+  <text x="110" y="438" class="label">OIDC token</text>
+  <text x="110" y="462" class="small">repo + environment claims</text>
+
+  <rect x="395" y="130" width="285" height="440" class="box aws"/>
+  <text x="423" y="165" class="label">AWS Trust Check</text>
+  <rect x="425" y="210" width="225" height="70" class="chip"/>
+  <text x="450" y="238" class="label">OIDC provider</text>
+  <text x="450" y="262" class="small">token.actions.github...</text>
+  <rect x="425" y="310" width="225" height="70" class="chip"/>
+  <text x="450" y="338" class="label">STS</text>
+  <text x="450" y="362" class="small">AssumeRoleWithWebIdentity</text>
+  <rect x="425" y="410" width="225" height="70" class="chip"/>
+  <text x="450" y="438" class="label">Trust policy</text>
+  <text x="450" y="462" class="small">aud + sub must match</text>
+
+  <rect x="735" y="130" width="285" height="440" class="box green"/>
+  <text x="763" y="165" class="label">Temporary Access</text>
+  <rect x="765" y="210" width="225" height="70" class="chip"/>
+  <text x="790" y="238" class="label">IAM role</text>
+  <text x="790" y="262" class="small">signalforge-github-actions-dev</text>
+  <rect x="765" y="310" width="225" height="70" class="chip"/>
+  <text x="790" y="338" class="label">Temp credentials</text>
+  <text x="790" y="362" class="small">access key + token + expiry</text>
+  <rect x="765" y="410" width="225" height="70" class="chip"/>
+  <text x="790" y="438" class="label">Terraform</text>
+  <text x="790" y="462" class="small">plan/apply with role</text>
+
+  <rect x="1075" y="130" width="270" height="440" class="box purple"/>
+  <text x="1103" y="165" class="label">What To Verify</text>
+  <rect x="1105" y="210" width="210" height="70" class="chip"/>
+  <text x="1130" y="238" class="label">AWS account</text>
+  <text x="1130" y="262" class="small">575108962419</text>
+  <rect x="1105" y="310" width="210" height="70" class="chip"/>
+  <text x="1130" y="338" class="label">Assumed role ARN</text>
+  <text x="1130" y="362" class="small">...assumed-role/...</text>
+  <rect x="1105" y="410" width="210" height="70" class="chip"/>
+  <text x="1130" y="438" class="label">No AWS secrets</text>
+  <text x="1130" y="462" class="small">no static access keys</text>
+
+  <path class="line" d="M340 445 H395"/>
+  <path class="orangeLine" d="M680 345 H735"/>
+  <path class="line" d="M1020 345 H1075"/>
+
+  <rect x="185" y="635" width="1030" height="80" class="box red"/>
+  <text x="215" y="668" class="label">Trust subject for this lab</text>
+  <text x="215" y="694" class="small">repo:PraveenB19/signalforge-ai-ops-lab:environment:dev</text>
+  <text x="760" y="694" class="small">If environment/repo/audience does not match, AWS STS denies the role.</text>
+</svg>

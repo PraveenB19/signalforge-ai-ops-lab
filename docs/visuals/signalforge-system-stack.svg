@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="780" viewBox="0 0 1400 780">
+  <defs>
+    <style>
+      .bg { fill: #090e15; }
+      .title { fill: #e7edf6; font: 700 26px Inter, Arial, sans-serif; }
+      .sub { fill: #9aa8ba; font: 14px Inter, Arial, sans-serif; }
+      .label { fill: #dce6f3; font: 700 16px Inter, Arial, sans-serif; }
+      .small { fill: #9aa8ba; font: 13px Inter, Arial, sans-serif; }
+      .tiny { fill: #7f8da0; font: 12px Inter, Arial, sans-serif; }
+      .box { fill: #141b24; stroke: #334155; stroke-width: 1.2; rx: 12; }
+      .green { stroke: #22c55e; }
+      .blue { stroke: #3b82f6; }
+      .orange { stroke: #f97316; }
+      .yellow { stroke: #eab308; }
+      .red { stroke: #ef4444; }
+      .purple { stroke: #a855f7; }
+      .line { stroke: #38bdf8; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+      .dimline { stroke: #64748b; stroke-width: 1.6; stroke-dasharray: 6 6; fill: none; marker-end: url(#arrowDim); }
+      .chip { fill: #111827; stroke: #334155; rx: 10; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#38bdf8"/>
+    </marker>
+    <marker id="arrowDim" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1400" height="780"/>
+  <text x="700" y="46" text-anchor="middle" class="title">SignalForge System Stack</text>
+  <text x="700" y="74" text-anchor="middle" class="sub">Learn production troubleshooting from user traffic down to Linux, JVM, app, data, and alerts</text>
+
+  <rect x="40" y="115" width="1320" height="160" class="box blue"/>
+  <text x="68" y="148" class="label">User Traffic Path</text>
+  <text x="68" y="173" class="small">Mental hook: User -> DNS -> ALB -> Network -> EC2 -> JVM -> App -> DB -> Metrics -> Alert</text>
+
+  <rect x="72" y="205" width="110" height="44" class="chip"/>
+  <text x="127" y="232" text-anchor="middle" class="label">User</text>
+  <rect x="225" y="205" width="130" height="44" class="chip"/>
+  <text x="290" y="232" text-anchor="middle" class="label">Route 53</text>
+  <rect x="398" y="205" width="120" height="44" class="chip"/>
+  <text x="458" y="232" text-anchor="middle" class="label">ALB</text>
+  <rect x="561" y="205" width="145" height="44" class="chip"/>
+  <text x="633" y="232" text-anchor="middle" class="label">VPC Network</text>
+  <rect x="749" y="205" width="120" height="44" class="chip"/>
+  <text x="809" y="232" text-anchor="middle" class="label">EC2</text>
+  <rect x="912" y="205" width="120" height="44" class="chip"/>
+  <text x="972" y="232" text-anchor="middle" class="label">JVM</text>
+  <rect x="1075" y="205" width="115" height="44" class="chip"/>
+  <text x="1132" y="232" text-anchor="middle" class="label">App</text>
+  <rect x="1233" y="205" width="95" height="44" class="chip"/>
+  <text x="1280" y="232" text-anchor="middle" class="label">RDS</text>
+
+  <path class="line" d="M182 227 H225"/>
+  <path class="line" d="M355 227 H398"/>
+  <path class="line" d="M518 227 H561"/>
+  <path class="line" d="M706 227 H749"/>
+  <path class="line" d="M869 227 H912"/>
+  <path class="line" d="M1032 227 H1075"/>
+  <path class="line" d="M1190 227 H1233"/>
+
+  <rect x="40" y="310" width="305" height="385" class="box green"/>
+  <text x="68" y="345" class="label">1. Network Layer</text>
+  <text x="68" y="373" class="small">Question: can packets reach the service?</text>
+  <text x="68" y="410" class="tiny">Check:</text>
+  <text x="92" y="436" class="small">curl -v URL</text>
+  <text x="92" y="462" class="small">dig domain</text>
+  <text x="92" y="488" class="small">nc -vz host port</text>
+  <text x="92" y="514" class="small">traceroute host</text>
+  <text x="92" y="540" class="small">ss -tulpen</text>
+  <text x="68" y="590" class="tiny">Signals:</text>
+  <text x="92" y="616" class="small">ALB 5xx, target health, packet loss</text>
+  <text x="92" y="642" class="small">security groups, NACLs, routes</text>
+
+  <rect x="380" y="310" width="305" height="385" class="box orange"/>
+  <text x="408" y="345" class="label">2. Linux / Kernel Layer</text>
+  <text x="408" y="373" class="small">Question: is the host saturated?</text>
+  <text x="408" y="410" class="tiny">Check:</text>
+  <text x="432" y="436" class="small">top</text>
+  <text x="432" y="462" class="small">free -h</text>
+  <text x="432" y="488" class="small">df -h and df -i</text>
+  <text x="432" y="514" class="small">vmstat 1</text>
+  <text x="432" y="540" class="small">dmesg</text>
+  <text x="408" y="590" class="tiny">Signals:</text>
+  <text x="432" y="616" class="small">CPU ready, memory pressure</text>
+  <text x="432" y="642" class="small">disk full, OOM kill, noisy process</text>
+
+  <rect x="720" y="310" width="305" height="385" class="box purple"/>
+  <text x="748" y="345" class="label">3. JVM / App Layer</text>
+  <text x="748" y="373" class="small">Question: is Java unhealthy?</text>
+  <text x="748" y="410" class="tiny">Check:</text>
+  <text x="772" y="436" class="small">jps -l</text>
+  <text x="772" y="462" class="small">jcmd PID GC.heap_info</text>
+  <text x="772" y="488" class="small">jcmd PID Thread.print</text>
+  <text x="772" y="514" class="small">jstack PID</text>
+  <text x="772" y="540" class="small">journalctl -u signalforge</text>
+  <text x="748" y="590" class="tiny">Signals:</text>
+  <text x="772" y="616" class="small">heap growth, GC pauses, thread pool</text>
+  <text x="772" y="642" class="small">DB pool exhaustion, exceptions</text>
+
+  <rect x="1060" y="310" width="300" height="385" class="box yellow"/>
+  <text x="1088" y="345" class="label">4. Observability Layer</text>
+  <text x="1088" y="373" class="small">Question: what changed and who is impacted?</text>
+  <text x="1088" y="410" class="tiny">Check:</text>
+  <text x="1112" y="436" class="small">CloudWatch metrics</text>
+  <text x="1112" y="462" class="small">ALB TargetResponseTime</text>
+  <text x="1112" y="488" class="small">HTTPCode_Target_5XX</text>
+  <text x="1112" y="514" class="small">logs by request time</text>
+  <text x="1112" y="540" class="small">deployment history</text>
+  <text x="1088" y="590" class="tiny">Signals:</text>
+  <text x="1112" y="616" class="small">latency, traffic, errors, saturation</text>
+  <text x="1112" y="642" class="small">Slack/PagerDuty alert context</text>
+
+  <path class="dimline" d="M192 310 V275"/>
+  <path class="dimline" d="M532 310 V275"/>
+  <path class="dimline" d="M872 310 V275"/>
+  <path class="dimline" d="M1210 310 V275"/>
+
+  <text x="700" y="742" text-anchor="middle" class="sub">Interview memory: identify the failing layer first, then pick commands for that layer.</text>
+</svg>

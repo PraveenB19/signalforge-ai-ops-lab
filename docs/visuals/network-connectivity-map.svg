@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="780" viewBox="0 0 1400 780">
+  <defs>
+    <style>
+      .bg { fill: #090e15; }
+      .title { fill: #e7edf6; font: 700 26px Inter, Arial, sans-serif; }
+      .sub { fill: #9aa8ba; font: 14px Inter, Arial, sans-serif; }
+      .label { fill: #dce6f3; font: 700 16px Inter, Arial, sans-serif; }
+      .small { fill: #9aa8ba; font: 13px Inter, Arial, sans-serif; }
+      .tiny { fill: #7f8da0; font: 12px Inter, Arial, sans-serif; }
+      .box { fill: #141b24; stroke: #334155; stroke-width: 1.2; rx: 12; }
+      .blue { stroke: #3b82f6; }
+      .green { stroke: #22c55e; }
+      .orange { stroke: #f97316; }
+      .yellow { stroke: #eab308; }
+      .red { stroke: #ef4444; }
+      .chip { fill: #111827; stroke: #334155; rx: 10; }
+      .line { stroke: #38bdf8; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+      .return { stroke: #22c55e; stroke-width: 1.8; stroke-dasharray: 8 6; fill: none; marker-end: url(#arrowGreen); }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#38bdf8"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#22c55e"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1400" height="780"/>
+  <text x="700" y="46" text-anchor="middle" class="title">Network Connectivity And Packet Flow</text>
+  <text x="700" y="74" text-anchor="middle" class="sub">Use this when debugging DNS, ALB 502/503, packet loss, security groups, NACLs, NAT, and RDS connectivity</text>
+
+  <rect x="40" y="120" width="260" height="500" class="box blue"/>
+  <text x="68" y="155" class="label">Client / DNS</text>
+  <rect x="70" y="200" width="200" height="68" class="chip"/>
+  <text x="92" y="228" class="label">Browser / curl</text>
+  <text x="92" y="251" class="small">curl -v, curl -I</text>
+  <rect x="70" y="295" width="200" height="68" class="chip"/>
+  <text x="92" y="323" class="label">DNS</text>
+  <text x="92" y="346" class="small">dig, nslookup</text>
+  <text x="68" y="430" class="tiny">Common issue:</text>
+  <text x="92" y="457" class="small">wrong record, stale DNS, TLS error</text>
+
+  <rect x="335" y="120" width="260" height="500" class="box green"/>
+  <text x="363" y="155" class="label">Public Entry</text>
+  <rect x="365" y="200" width="200" height="68" class="chip"/>
+  <text x="387" y="228" class="label">ALB listener</text>
+  <text x="387" y="251" class="small">80/443, cert, rules</text>
+  <rect x="365" y="295" width="200" height="68" class="chip"/>
+  <text x="387" y="323" class="label">Target group</text>
+  <text x="387" y="346" class="small">health checks, targets</text>
+  <text x="363" y="430" class="tiny">ALB symptoms:</text>
+  <text x="387" y="457" class="small">502 = bad target response</text>
+  <text x="387" y="483" class="small">503 = no healthy targets</text>
+
+  <rect x="630" y="120" width="260" height="500" class="box orange"/>
+  <text x="658" y="155" class="label">VPC Controls</text>
+  <rect x="660" y="200" width="200" height="68" class="chip"/>
+  <text x="682" y="228" class="label">Security groups</text>
+  <text x="682" y="251" class="small">stateful, instance/ENI level</text>
+  <rect x="660" y="295" width="200" height="68" class="chip"/>
+  <text x="682" y="323" class="label">NACLs / routes</text>
+  <text x="682" y="346" class="small">stateless, subnet level</text>
+  <rect x="660" y="390" width="200" height="68" class="chip"/>
+  <text x="682" y="418" class="label">NAT gateway</text>
+  <text x="682" y="441" class="small">private outbound internet</text>
+  <text x="658" y="520" class="tiny">Commands:</text>
+  <text x="682" y="547" class="small">aws ec2 describe-route-tables</text>
+  <text x="682" y="573" class="small">VPC Flow Logs</text>
+
+  <rect x="925" y="120" width="195" height="500" class="box yellow"/>
+  <text x="953" y="155" class="label">App Host</text>
+  <rect x="955" y="200" width="135" height="68" class="chip"/>
+  <text x="977" y="228" class="label">EC2</text>
+  <text x="977" y="251" class="small">ss -tulpen</text>
+  <rect x="955" y="295" width="135" height="68" class="chip"/>
+  <text x="977" y="323" class="label">systemd</text>
+  <text x="977" y="346" class="small">journalctl -u</text>
+  <rect x="955" y="390" width="135" height="68" class="chip"/>
+  <text x="977" y="418" class="label">App port</text>
+  <text x="977" y="441" class="small">8080 health</text>
+
+  <rect x="1155" y="120" width="205" height="500" class="box red"/>
+  <text x="1183" y="155" class="label">Database</text>
+  <rect x="1185" y="200" width="145" height="68" class="chip"/>
+  <text x="1207" y="228" class="label">RDS</text>
+  <text x="1207" y="251" class="small">private only</text>
+  <rect x="1185" y="295" width="145" height="68" class="chip"/>
+  <text x="1207" y="323" class="label">DB SG</text>
+  <text x="1207" y="346" class="small">allow app SG</text>
+  <text x="1183" y="430" class="tiny">Symptoms:</text>
+  <text x="1207" y="457" class="small">connection timeout</text>
+  <text x="1207" y="483" class="small">pool exhausted</text>
+
+  <path class="line" d="M300 235 H335"/>
+  <path class="line" d="M595 235 H630"/>
+  <path class="line" d="M890 235 H925"/>
+  <path class="line" d="M1120 235 H1155"/>
+  <path class="return" d="M1155 575 C900 700 430 700 170 620"/>
+
+  <text x="700" y="680" text-anchor="middle" class="label">Troubleshooting order</text>
+  <text x="700" y="708" text-anchor="middle" class="sub">DNS resolves? ALB listener works? targets healthy? SG/NACL/routes allow? app listening? DB reachable?</text>
+  <text x="700" y="738" text-anchor="middle" class="sub">Packet loss clue: compare client curl, ALB metrics, VPC Flow Logs, EC2 ss/netstat, and application logs.</text>
+</svg>

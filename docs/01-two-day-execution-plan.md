@@ -2,6 +2,35 @@
 
 The goal is to finish a presentable, hands-on version in two days without turning it into a never-ending platform project.
 
+Execution flow:
+
+```mermaid
+flowchart LR
+    Foundation["Repo + docs"] --> App["Java app"]
+    App --> CI["CI quality/security"]
+    CI --> AWS["Terraform AWS"]
+    AWS --> Deploy["Deploy app"]
+    Deploy --> Observe["Observe metrics/logs"]
+    Observe --> Break["Simulate incidents"]
+    Break --> Recover["Troubleshoot + recover"]
+    Recover --> Story["Interview + LinkedIn story"]
+```
+
+How to think about the two days:
+
+```text
+Day 1 proves we can build and deploy.
+Day 2 proves we can operate, break, diagnose, and explain.
+```
+
+Interview positioning:
+
+```text
+I structured the project in phases so each layer proves something: CI proves the
+artifact, Terraform proves repeatable infrastructure, deployment proves runtime,
+and incident simulation proves operational readiness.
+```
+
 ## Day 1: Build and Deploy
 
 ### Phase 1: Repository and Learning Foundation
@@ -167,4 +196,3 @@ Learning outcome:
 ```text
 You can confidently explain the project as a production operations lab.
 ```
-
