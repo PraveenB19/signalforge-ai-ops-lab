@@ -81,3 +81,21 @@ variable "app_max_size" {
   type        = number
   default     = 3
 }
+
+variable "app_cpu_target_value" {
+  description = "Average CPU utilization target for dev app Auto Scaling."
+  type        = number
+  default     = 60
+}
+
+variable "database_instance_class" {
+  description = "RDS instance class for dev."
+  type        = string
+  default     = "db.t4g.micro"
+}
+
+variable "database_allocated_storage" {
+  description = "RDS allocated storage in GB for dev."
+  type        = number
+  default     = 20
+}

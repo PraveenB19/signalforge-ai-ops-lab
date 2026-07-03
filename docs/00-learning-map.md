@@ -85,8 +85,9 @@ Read these when you want the whole project story:
 11. docs/04-terraform-operations.md
 12. docs/17-terraform-enterprise-runbook.md
 13. docs/18-aws-network-flow.md
-14. docs/05-interview-troubleshooting-notes.md
-15. docs/09-scenario-catalog.md
+14. docs/19-cicd-troubleshooting-runbook.md
+15. docs/05-interview-troubleshooting-notes.md
+16. docs/09-scenario-catalog.md
 ```
 
 Use these as supporting docs:
