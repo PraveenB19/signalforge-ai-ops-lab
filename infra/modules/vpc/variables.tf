@@ -28,6 +28,12 @@ variable "private_db_subnet_cidrs" {
   type        = list(string)
 }
 
+variable "enable_nat_gateway" {
+  description = "Whether to create a NAT gateway for private application subnet outbound internet access."
+  type        = bool
+  default     = true
+}
+
 variable "tags" {
   description = "Common tags applied to resources."
   type        = map(string)
