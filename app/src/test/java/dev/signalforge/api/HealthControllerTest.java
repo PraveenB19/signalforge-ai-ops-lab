@@ -15,7 +15,7 @@ class HealthControllerTest {
 
         assertThat(response)
                 .containsEntry("status", "UP")
-                .containsEntry("service", "signalforge")
+                .containsEntry("service", "orbit")
                 .containsKey("timestamp");
     }
 }

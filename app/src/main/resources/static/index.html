@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Orbit Ops</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="launch-warning" id="launch-warning" hidden>
+      This dashboard is open as a local file. Start the Spring Boot app and use
+      <strong>http://localhost:8080/</strong> so drills can call the API.
+    </div>
+
+    <header class="command-bar">
+      <div>
+        <p class="eyebrow">Production scenario trainer</p>
+        <h1>Orbit Ops</h1>
+      </div>
+      <div class="runtime-strip">
+        <span id="runtime-health">checking</span>
+        <span>port <strong id="runtime-port">8080</strong></span>
+        <span><strong id="target-count">0/0</strong> targets</span>
+        <button class="theme-toggle" id="theme-toggle" type="button">Light</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="hero-panel">
+        <div class="hero-copy">
+          <p class="eyebrow">Request journey trainer</p>
+          <h2>Click each hop and watch a user request cross the stack.</h2>
+          <p>
+            Orbit turns a normal three-tier AWS deployment into a visual runbook.
+            Follow DNS, ALB TLS termination, listener rules, target selection,
+            private EC2, database traffic, response flow, and NAT's outbound-only role.
+          </p>
+        </div>
+        <div class="request-route" aria-label="Request route">
+          <button class="route-node active" data-step="browser">
+            <span>01</span>
+            Browser
+            <small>client IP + URL</small>
+          </button>
+          <button class="route-node" data-step="dns">
+            <span>02</span>
+            DNS
+            <small>Route 53 later</small>
+          </button>
+          <button class="route-node" data-step="alb">
+            <span>03</span>
+            ALB / TLS
+            <small>:443 or :80</small>
+          </button>
+          <button class="route-node" data-step="target">
+            <span>04</span>
+            Target Group
+            <small>health checks</small>
+          </button>
+          <button class="route-node" data-step="app">
+            <span>05</span>
+            EC2
+            <small>private :8080</small>
+          </button>
+          <button class="route-node" data-step="db">
+            <span>06</span>
+            RDS
+            <small>private DB</small>
+          </button>
+          <button class="route-node" data-step="response">
+            <span>07</span>
+            Response
+            <small>back via ALB</small>
+          </button>
+          <button class="route-node" data-step="nat">
+            <span>08</span>
+            NAT
+            <small>outbound only</small>
+          </button>
+        </div>
+      </section>
+
+      <section class="journey-panel">
+        <div class="journey-main">
+          <p class="eyebrow" id="journey-layer">Browser</p>
+          <h2 id="journey-title">User starts a request</h2>
+          <p id="journey-copy">
+            The user enters the Orbit URL. The browser prepares an HTTP request with
+            method, path, headers, source IP, and destination host.
+          </p>
+          <div class="number-grid">
+            <span><strong id="journey-protocol">HTTP</strong> protocol</span>
+            <span><strong id="journey-port">80</strong> port</span>
+            <span><strong id="journey-metric">request count</strong> key signal</span>
+          </div>
+        </div>
+        <div class="journey-side">
+          <pre id="journey-commands">curl -i http://&lt;alb-dns&gt;/</pre>
+          <div class="journey-insight" id="journey-insight">
+            Request starts at the browser. The first production question is:
+            is this one user, one route, one target, or the whole service?
+          </div>
+        </div>
+      </section>
+
+      <section class="flow-panel flow-panel-top">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Architecture flow</p>
+            <h2>Where the request goes</h2>
+            <p class="section-copy">
+              Use this as the map before troubleshooting. Click a journey step above,
+              then watch the matching layer highlight here.
+            </p>
+          </div>
+          <span class="chart-legend" id="active-layer">baseline</span>
+        </div>
+        <div class="layer-map" id="layer-map">
+          <div class="layer" data-layer="dns">
+            <strong>DNS / Route 53</strong>
+            <span>Domain resolves to ALB DNS. Not required for UI, but required for friendly HTTPS hostnames.</span>
+          </div>
+          <div class="layer" data-layer="alb">
+            <strong>ALB + TLS</strong>
+            <span>HTTPS terminates at ALB using ACM. Listener rules choose a target group by host/path.</span>
+          </div>
+          <div class="layer" data-layer="target">
+            <strong>Target Group</strong>
+            <span>Only healthy EC2 targets receive traffic. 502/503 often starts here.</span>
+          </div>
+          <div class="layer" data-layer="app">
+            <strong>Private EC2 App</strong>
+            <span>Spring Boot listens on 8080. Security group allows ALB to app, not internet to app.</span>
+          </div>
+          <div class="layer" data-layer="db">
+            <strong>RDS PostgreSQL</strong>
+            <span>Private database receives app-to-db traffic only. No public inbound route.</span>
+          </div>
+          <div class="layer" data-layer="nat">
+            <strong>NAT Gateway</strong>
+            <span>Not used for inbound user traffic. Used when private EC2 needs outbound internet for packages or updates.</span>
+          </div>
+          <div class="layer" data-layer="response">
+            <strong>Response Path</strong>
+            <span>App returns to ALB, then ALB returns to browser over the existing client connection.</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="url-lab">
+        <div class="url-example">
+          <p class="eyebrow">URL anatomy</p>
+          <h2>https://app.orbit.dev/cart?item=book</h2>
+          <p>
+            A browser request is not just a click. It has a protocol, host, path,
+            optional query string, headers, cookies, and sometimes a body.
+          </p>
+        </div>
+        <div class="url-parts">
+          <button data-urlpart="protocol"><strong>https</strong><span>encrypted protocol</span></button>
+          <button data-urlpart="host"><strong>app.orbit.dev</strong><span>host/domain</span></button>
+          <button data-urlpart="path"><strong>/cart</strong><span>page or route path</span></button>
+          <button data-urlpart="query"><strong>?item=book</strong><span>query parameters</span></button>
+          <button data-urlpart="headers"><strong>headers</strong><span>metadata like User-Agent</span></button>
+          <button data-urlpart="cookies"><strong>cookies</strong><span>session/login context</span></button>
+        </div>
+        <pre id="url-part-copy">Click a URL part to see how it maps to ALB rules and application routes.</pre>
+      </section>
+
+      <section class="golden-signals" aria-label="Golden signals">
+        <article class="signal major" data-metric="request-rate">
+          <span>Request Rate</span>
+          <strong id="request-rate">0/min</strong>
+          <small>Traffic entering the service</small>
+        </article>
+        <article class="signal" data-metric="success-rate">
+          <span>Success Rate</span>
+          <strong id="success-rate">100%</strong>
+          <small>Non-4xx/5xx responses</small>
+        </article>
+        <article class="signal warning" data-metric="fourxx-rate">
+          <span>4xx Rate</span>
+          <strong id="fourxx-rate">0%</strong>
+          <small>Client/request mistakes</small>
+        </article>
+        <article class="signal danger" data-metric="fivexx-rate">
+          <span>5xx Rate</span>
+          <strong id="fivexx-rate">0%</strong>
+          <small>Server or dependency failures</small>
+        </article>
+        <article class="signal" data-metric="p50">
+          <span>P50</span>
+          <strong id="p50">0 ms</strong>
+          <small>Typical request</small>
+        </article>
+        <article class="signal" data-metric="p95">
+          <span>P95</span>
+          <strong id="p95">0 ms</strong>
+          <small>Slow user experience</small>
+        </article>
+        <article class="signal" data-metric="p99">
+          <span>P99</span>
+          <strong id="p99">0 ms</strong>
+          <small>Worst tail latency</small>
+        </article>
+      </section>
+
+      <section class="formula-strip" aria-label="Metric formulas">
+        <article>
+          <span>Error rate</span>
+          <strong>failed requests / total requests * 100</strong>
+        </article>
+        <article>
+          <span>P95</span>
+          <strong>95% of requests are faster than this value</strong>
+        </article>
+        <article>
+          <span>Healthy targets</span>
+          <strong>instances passing target group health checks</strong>
+        </article>
+        <article>
+          <span>Availability</span>
+          <strong>successful requests / total requests * 100</strong>
+        </article>
+        <article>
+          <span>Saturation</span>
+          <strong>CPU, memory, disk, threads, and connection pools near limit</strong>
+        </article>
+        <article>
+          <span>DB pressure</span>
+          <strong>active connections, locks, slow queries, and wait events</strong>
+        </article>
+      </section>
+
+      <section class="explain-panel">
+        <div>
+          <p class="eyebrow">Explain like I am new</p>
+          <h2 id="metric-title">Click a metric or drill</h2>
+          <p id="metric-copy">
+            This panel explains what the number means, why it matters, and what to do first.
+          </p>
+        </div>
+        <pre id="metric-actions">Start with user impact, then check the layer closest to the symptom.</pre>
+      </section>
+
+      <section class="scenario-strip" aria-label="Current drill summary">
+        <article>
+          <span>Current Drill</span>
+          <strong id="current-drill">None selected</strong>
+        </article>
+        <article>
+          <span>What Should Move</span>
+          <strong id="current-movement">Pick a drill</strong>
+        </article>
+        <article>
+          <span>Likely Layer</span>
+          <strong id="current-layer">-</strong>
+        </article>
+        <article>
+          <span>First Check</span>
+          <strong id="current-check">Start with user impact</strong>
+        </article>
+      </section>
+
+      <section class="ops-grid">
+        <article class="drill-board">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Runbook drills</p>
+              <h2>Break it, observe it, explain it.</h2>
+            </div>
+            <button class="ghost" id="refresh-button">Refresh</button>
+          </div>
+
+          <div class="drills">
+            <button data-action="burst">
+              Traffic Burst
+              <small>20 API requests</small>
+            </button>
+            <button data-action="storm">
+              Load Storm
+              <small>120 mixed requests</small>
+            </button>
+            <button data-sim="/simulate/latency?ms=1800">
+              Latency Spike
+              <small>p95/p99 should jump</small>
+            </button>
+            <button data-sim="/simulate/error?status=401">
+              Unauthorized
+              <small>missing or bad identity</small>
+            </button>
+            <button data-sim="/simulate/error?status=403">
+              Forbidden
+              <small>authenticated but denied</small>
+            </button>
+            <button data-sim="/simulate/error?status=404">
+              Not Found
+              <small>route or path mismatch</small>
+            </button>
+            <button data-sim="/simulate/error?status=429">
+              Rate Limited
+              <small>too many requests</small>
+            </button>
+            <button data-sim="/simulate/error?status=500">
+              App Error
+              <small>unhandled server failure</small>
+            </button>
+            <button data-sim="/simulate/error?status=502">
+              Bad Gateway
+              <small>5xx troubleshooting</small>
+            </button>
+            <button data-sim="/simulate/error?status=503">
+              Unavailable
+              <small>target/dependency story</small>
+            </button>
+            <button data-sim="/simulate/error?status=504">
+              Gateway Timeout
+              <small>target too slow</small>
+            </button>
+            <button data-sim="/simulate/cpu?seconds=6">
+              CPU Pressure
+              <small>watch instance metrics</small>
+            </button>
+            <button data-sim="/simulate/memory?mb=96">
+              Memory Pressure
+              <small>heap/process pressure</small>
+            </button>
+            <button data-sim="/simulate/memory/clear">
+              Clear Memory
+              <small>release retained chunks</small>
+            </button>
+          </div>
+
+          <div class="diagnosis">
+            <h3 id="diagnosis-title">Ready for a drill</h3>
+            <p id="diagnosis-copy">
+              Start with the symptom, locate the layer, verify with metrics, then
+              inspect logs or system state.
+            </p>
+            <pre id="simulation-output">No drill has run yet.</pre>
+          </div>
+        </article>
+
+        <aside class="analysis-board">
+          <p class="eyebrow">Correlation coach</p>
+          <h2 id="coach-title">Normal baseline</h2>
+          <p id="coach-copy">
+            In production, do not read one metric alone. Correlate request rate,
+            latency, error class, target health, CPU, memory, logs, and recent deploys.
+          </p>
+          <div class="coach-flow" aria-label="Correlation flow">
+            <div>
+              <span>Trigger</span>
+              <strong id="coach-trigger">baseline</strong>
+            </div>
+            <div>
+              <span>Numbers that move</span>
+              <strong id="coach-numbers">request rate, success, p95</strong>
+            </div>
+            <div>
+              <span>Likely reason</span>
+              <strong id="coach-reason">compare against normal</strong>
+            </div>
+            <div>
+              <span>First fix path</span>
+              <strong id="coach-fix">observe before changing</strong>
+            </div>
+          </div>
+          <div class="checklist">
+            <span>1. User impact</span>
+            <span>2. Load balancer health</span>
+            <span>3. App logs and JVM</span>
+            <span>4. Dependency and database</span>
+            <span>5. Recent deploy or drift</span>
+          </div>
+          <pre id="coach-runbook">Normal baseline:
+- Request rate is steady.
+- Success rate is high.
+- 4xx and 5xx are near zero.
+- p95/p99 are stable.
+- Healthy target count matches desired capacity.</pre>
+        </aside>
+      </section>
+
+      <section class="learning-grid">
+        <article class="chart-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Live shape</p>
+              <h2>Latency and traffic trend</h2>
+              <p class="section-copy">
+                Run a drill above, then watch which line moves first. Request rate
+                is blue, p95 is yellow, and p99 is red.
+              </p>
+            </div>
+            <span class="chart-legend">request rate + p95 + p99</span>
+          </div>
+          <div class="chart" id="metric-chart" aria-label="Metric trend chart"></div>
+        </article>
+      </section>
+
+      <section class="timeline-panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Recent request stream</p>
+            <h2>What the service just saw</h2>
+          </div>
+          <span id="window-label">60s window</span>
+        </div>
+        <div id="event-stream" class="event-stream"></div>
+      </section>
+
+      <section class="practice-lab">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Production practice</p>
+            <h2>Commands, metrics, and resolution paths</h2>
+            <p class="section-copy">
+              Use these when you are inside an incident: prove impact, locate the
+              failing layer, make the smallest safe fix, then verify recovery.
+            </p>
+          </div>
+        </div>
+
+        <div class="practice-grid">
+          <article>
+            <span>HTTP and endpoint checks</span>
+            <pre>curl -i http://&lt;alb-dns&gt;/
+curl -w 'status=%{http_code} dns=%{time_namelookup} connect=%{time_connect} ttfb=%{time_starttransfer} total=%{time_total}\n' -o /dev/null -s http://&lt;alb-dns&gt;/
+curl -H 'Host: app.example.com' -i http://&lt;alb-dns&gt;/cart
+curl -i http://localhost:8080/actuator/health</pre>
+          </article>
+
+          <article>
+            <span>Linux and network checks</span>
+            <pre>ss -lntp | grep 8080
+ip route
+dig app.example.com
+nslookup app.example.com
+ping -c 5 &lt;target-ip&gt;
+traceroute &lt;host&gt;
+sudo tcpdump -i any port 8080 -nn
+journalctl -u signalforge.service -n 100 --no-pager</pre>
+          </article>
+
+          <article>
+            <span>Java, CPU, memory</span>
+            <pre>top
+free -m
+ps aux --sort=-rss | head
+top -H -p $(pgrep -f signalforge-app)
+jcmd &lt;pid&gt; Thread.print
+jcmd &lt;pid&gt; GC.heap_info
+jstat -gc &lt;pid&gt; 1000 5</pre>
+          </article>
+
+          <article>
+            <span>RDS PostgreSQL checks</span>
+            <pre>psql -h &lt;rds-endpoint&gt; -U &lt;user&gt; -d &lt;db&gt;
+select now();
+select count(*) from incidents;
+select * from incidents order by created_at desc limit 5;
+select pid, state, wait_event_type, query from pg_stat_activity;
+select datname, numbackends, xact_commit, xact_rollback from pg_stat_database;</pre>
+          </article>
+
+          <article>
+            <span>AWS CLI investigation</span>
+            <pre>aws sts get-caller-identity --profile admin-user
+aws elbv2 describe-target-health --target-group-arn &lt;tg-arn&gt;
+aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names &lt;asg&gt;
+aws ec2 describe-instances --filters Name=tag:Project,Values=signalforge
+aws rds describe-db-instances --db-instance-identifier &lt;db-id&gt;
+aws logs tail /aws/ec2/signalforge --follow</pre>
+          </article>
+
+          <article>
+            <span>S3 artifact practice</span>
+            <pre>aws s3 ls s3://&lt;artifact-bucket&gt;/
+aws s3 cp app/target/signalforge-app-0.1.0-SNAPSHOT.jar s3://&lt;artifact-bucket&gt;/dev/app.jar
+aws s3 cp s3://&lt;artifact-bucket&gt;/dev/app.jar /opt/signalforge/app.jar
+aws s3api head-object --bucket &lt;artifact-bucket&gt; --key dev/app.jar</pre>
+          </article>
+        </div>
+
+        <div class="resolution-grid">
+          <article>
+            <span>Missed metric</span>
+            <strong>ALB TargetResponseTime</strong>
+            <p>Use with p95/p99. If ALB latency rises, check target app, JVM, DB, or downstream wait.</p>
+          </article>
+          <article>
+            <span>Missed metric</span>
+            <strong>UnHealthyHostCount</strong>
+            <p>If this rises, fix health check path, app boot, port 8080, security group, or bad deploy.</p>
+          </article>
+          <article>
+            <span>Missed metric</span>
+            <strong>CPU, memory, disk</strong>
+            <p>CPU scales ASG easily. Memory and disk need CloudWatch Agent. High disk can break logs or deployments.</p>
+          </article>
+          <article>
+            <span>Missed metric</span>
+            <strong>DB connections and latency</strong>
+            <p>High connections or slow queries often appear as p95/p99 before users see hard 5xx errors.</p>
+          </article>
+          <article>
+            <span>Resolution pattern</span>
+            <strong>Bad deployment</strong>
+            <p>Confirm artifact version, compare logs, rollback to last known good S3 artifact, then redeploy safely.</p>
+          </article>
+          <article>
+            <span>Resolution pattern</span>
+            <strong>Networking break</strong>
+            <p>Check SG, NACL, route table, target health, and VPC flow logs before changing application code.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
