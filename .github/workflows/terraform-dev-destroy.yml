@@ -1,0 +1,46 @@
+name: Terraform Dev Destroy
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform-destroy:
+    name: Terraform destroy dev
+    runs-on: ubuntu-latest
+    environment: dev
+
+    if: github.ref == 'refs/heads/dev'
+
+    defaults:
+      run:
+        working-directory: infra/envs/dev
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.15.2"
+
+      - name: Configure AWS credentials through OIDC
+        uses: aws-actions/configure-aws-credentials@v6.1.0
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME_DEV }}
+          aws-region: ${{ vars.AWS_REGION }}
+          role-session-name: signalforge-terraform-dev-destroy
+          allowed-account-ids: "575108962419"
+
+      - name: Terraform init
+        run: terraform init
+
+      - name: Terraform destroy plan
+        run: terraform plan -destroy -input=false
+
+      - name: Terraform destroy
+        run: terraform destroy -input=false -auto-approve
