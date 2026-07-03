@@ -145,6 +145,7 @@ signalforge-ai-ops-lab/
     16-oidc-explained-human-version.md
     17-terraform-enterprise-runbook.md
     18-aws-network-flow.md
+    19-cicd-troubleshooting-runbook.md
     visuals/
       README.md
       signalforge-system-stack.svg

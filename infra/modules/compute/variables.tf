@@ -53,6 +53,12 @@ variable "max_size" {
   default     = 3
 }
 
+variable "cpu_target_value" {
+  description = "Average ASG CPU utilization percentage that target tracking tries to maintain."
+  type        = number
+  default     = 60
+}
+
 variable "tags" {
   description = "Common tags applied to compute resources."
   type        = map(string)

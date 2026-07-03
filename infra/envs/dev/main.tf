@@ -70,5 +70,29 @@ module "compute" {
   desired_capacity      = var.app_desired_capacity
   min_size              = var.app_min_size
   max_size              = var.app_max_size
+  cpu_target_value      = var.app_cpu_target_value
   tags                  = local.common_tags
+}
+
+module "rds" {
+  source = "../../modules/rds"
+
+  name_prefix           = local.name_prefix
+  private_db_subnet_ids = module.vpc.private_db_subnet_ids
+  db_security_group_id  = module.security_groups.db_security_group_id
+  instance_class        = var.database_instance_class
+  allocated_storage     = var.database_allocated_storage
+  skip_final_snapshot   = true
+  tags                  = local.common_tags
+}
+
+module "observability" {
+  source = "../../modules/observability"
+
+  name_prefix             = local.name_prefix
+  vpc_id                  = module.vpc.vpc_id
+  alb_arn_suffix          = module.alb.alb_arn_suffix
+  target_group_arn_suffix = module.alb.target_group_arn_suffix
+  autoscaling_group_name  = module.compute.autoscaling_group_name
+  tags                    = local.common_tags
 }
