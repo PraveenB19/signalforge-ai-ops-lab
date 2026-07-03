@@ -76,11 +76,29 @@ jobs:
               \"sudo systemctl daemon-reload\",
               \"sudo systemctl disable --now signalforge-placeholder.service || true\",
               \"sudo systemctl enable --now signalforge.service\",
-              \"curl -fsS http://localhost:8080/actuator/health\"
+              \"for i in {1..30}; do curl -fsS http://localhost:8080/actuator/health && exit 0; echo waiting for app health attempt $i/30; sleep 2; done\",
+              \"systemctl status signalforge.service --no-pager || true\",
+              \"journalctl -u signalforge.service -n 80 --no-pager || true\",
+              \"exit 1\"
             ]" \
             --query "Command.CommandId" \
             --output text)"
 
           echo "SSM command id: ${COMMAND_ID}"
-          aws ssm wait command-executed --command-id "${COMMAND_ID}" --instance-id "$(aws ssm list-command-invocations --command-id "${COMMAND_ID}" --query 'CommandInvocations[0].InstanceId' --output text)"
           aws ssm list-command-invocations --command-id "${COMMAND_ID}" --details
+
+          for attempt in {1..60}; do
+            statuses="$(aws ssm list-command-invocations --command-id "${COMMAND_ID}" --query 'CommandInvocations[].Status' --output text)"
+            echo "SSM invocation statuses: ${statuses}"
+
+            if ! echo "${statuses}" | grep -Eq 'Pending|InProgress|Delayed'; then
+              break
+            fi
+
+            sleep 5
+          done
+
+          aws ssm list-command-invocations --command-id "${COMMAND_ID}" --details
+
+          failed_count="$(aws ssm list-command-invocations --command-id "${COMMAND_ID}" --query "length(CommandInvocations[?Status!='Success'])" --output text)"
+          test "${failed_count}" = "0"
