@@ -150,3 +150,106 @@ resource "aws_cloudwatch_metric_alarm" "asg_cpu_high" {
 
   tags = var.tags
 }
+
+resource "aws_cloudwatch_dashboard" "ops" {
+  dashboard_name = "${var.name_prefix}-ops-dashboard"
+
+  dashboard_body = jsonencode({
+    widgets = [
+      {
+        type   = "text"
+        x      = 0
+        y      = 0
+        width  = 24
+        height = 2
+        properties = {
+          markdown = "# ${var.name_prefix} Ops Dashboard\nWatch traffic, errors, latency, target health, and ASG CPU while running Orbit drills."
+        }
+      },
+      {
+        type   = "metric"
+        x      = 0
+        y      = 2
+        width  = 12
+        height = 6
+        properties = {
+          title   = "ALB request rate and errors"
+          view    = "timeSeries"
+          stacked = false
+          period  = 60
+          stat    = "Sum"
+          metrics = [
+            ["AWS/ApplicationELB", "RequestCount", "LoadBalancer", var.alb_arn_suffix, { label = "Requests" }],
+            [".", "HTTPCode_ELB_5XX_Count", ".", ".", { label = "ALB 5xx" }],
+            [".", "HTTPCode_Target_5XX_Count", ".", ".", "TargetGroup", var.target_group_arn_suffix, { label = "Target 5xx" }]
+          ]
+        }
+      },
+      {
+        type   = "metric"
+        x      = 12
+        y      = 2
+        width  = 12
+        height = 6
+        properties = {
+          title   = "Target latency p95"
+          view    = "timeSeries"
+          stacked = false
+          period  = 60
+          metrics = [
+            ["AWS/ApplicationELB", "TargetResponseTime", "LoadBalancer", var.alb_arn_suffix, "TargetGroup", var.target_group_arn_suffix, { stat = "p95", label = "p95 latency" }],
+            [".", ".", ".", ".", ".", ".", { stat = "Average", label = "avg latency" }]
+          ]
+        }
+      },
+      {
+        type   = "metric"
+        x      = 0
+        y      = 8
+        width  = 12
+        height = 6
+        properties = {
+          title   = "Target health"
+          view    = "timeSeries"
+          stacked = false
+          period  = 60
+          stat    = "Average"
+          metrics = [
+            ["AWS/ApplicationELB", "HealthyHostCount", "LoadBalancer", var.alb_arn_suffix, "TargetGroup", var.target_group_arn_suffix, { label = "Healthy targets" }],
+            [".", "UnHealthyHostCount", ".", ".", ".", ".", { label = "Unhealthy targets" }]
+          ]
+        }
+      },
+      {
+        type   = "metric"
+        x      = 12
+        y      = 8
+        width  = 12
+        height = 6
+        properties = {
+          title   = "Auto Scaling CPU"
+          view    = "timeSeries"
+          stacked = false
+          period  = 60
+          stat    = "Average"
+          metrics = [
+            ["AWS/EC2", "CPUUtilization", "AutoScalingGroupName", var.autoscaling_group_name, { label = "ASG average CPU" }]
+          ]
+        }
+      },
+      {
+        type   = "log"
+        x      = 0
+        y      = 14
+        width  = 24
+        height = 6
+        properties = {
+          title  = "Recent VPC rejected traffic"
+          region = "us-east-1"
+          query  = "SOURCE '${aws_cloudwatch_log_group.vpc_flow_logs.name}' | fields @timestamp, srcAddr, dstAddr, dstPort, protocol, action | filter action = 'REJECT' | sort @timestamp desc | limit 20"
+          view   = "table"
+        }
+      }
+    ]
+  })
+}

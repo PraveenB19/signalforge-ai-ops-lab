@@ -129,6 +129,98 @@ Successful workflow does not always mean latest code.
 Always check branch, SHA, modules initialized, and plan summary.
 ```
 
+## Scenario: Deploy Succeeded But ALB Still Served Old App
+
+What happened in SignalForge:
+
+```text
+GitHub Actions built the new JAR.
+GitHub Actions uploaded the new JAR to S3.
+SSM copied the new JAR to /opt/signalforge/signalforge-app.jar.
+SSM command reported Success.
+ALB /actuator/health returned 200.
+But ALB / and /api/ops/snapshot returned 404.
+```
+
+Why this was confusing:
+
+```text
+The infrastructure was healthy.
+The targets were healthy.
+The deploy command succeeded.
+But users still saw old application behavior.
+```
+
+Evidence:
+
+```bash
+curl -i http://<alb-dns>/
+curl -i http://<alb-dns>/api/ops/snapshot
+curl -i http://<alb-dns>/actuator/health
+aws elbv2 describe-target-health --target-group-arn <target-group-arn>
+```
+
+What the evidence meant:
+
+```text
+/actuator/health = 200:
+  ALB can reach the app and the app process is alive.
+
+/ and /api/ops/snapshot = 404:
+  The running process does not contain the new static UI or new API endpoint.
+
+Healthy target group:
+  This is not a security group or routing failure.
+```
+
+Root cause:
+
+```text
+The workflow copied a new JAR over the old file, but the old Java process kept
+running in memory.
+```
+
+The bug:
+
+```bash
+sudo systemctl enable --now signalforge.service
+```
+
+Why:
+
+```text
+enable --now starts the service if it is not running, but it does not restart an
+already-running service.
+```
+
+Fix:
+
+```bash
+sudo systemctl enable signalforge.service
+sudo systemctl restart signalforge.service
+```
+
+How to confirm on EC2:
+
+```bash
+systemctl status signalforge.service --no-pager
+ps -eo pid,lstart,cmd | grep signalforge-app.jar | grep -v grep
+curl -i http://localhost:8080/
+curl -i http://localhost:8080/api/ops/snapshot
+```
+
+Interview answer:
+
+```text
+I debugged a case where deployment succeeded but the ALB still showed old
+behavior. I first checked the ALB URL, health endpoint, target health, and new
+API path. Health was good, but the new path returned 404, so I knew ALB and
+networking were fine and the running app was stale. On the instance, the Java
+process start time was older than the deploy time. The workflow had copied the
+new JAR but had not restarted systemd. We fixed the pipeline to restart the
+service after copying the artifact.
+```
+
 ## Auto Scaling: What We Implemented
 
 Current SignalForge scaling:
@@ -174,4 +266,3 @@ CloudWatch Agent or an observability stack, then alert on those signals. I would
 be careful scaling on memory because memory pressure may indicate a leak, not
 just more traffic.
 ```
-

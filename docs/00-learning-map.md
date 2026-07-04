@@ -86,8 +86,13 @@ Read these when you want the whole project story:
 12. docs/17-terraform-enterprise-runbook.md
 13. docs/18-aws-network-flow.md
 14. docs/19-cicd-troubleshooting-runbook.md
-15. docs/05-interview-troubleshooting-notes.md
-16. docs/09-scenario-catalog.md
+15. docs/20-end-to-end-dev-test-runbook.md
+16. docs/21-linux-aws-command-reference.md
+17. docs/22-secrets-manager-practice.md
+18. docs/23-cicd-interview-scripts.md
+19. docs/24-chatgpt-interview-script-prompt.md
+20. docs/05-interview-troubleshooting-notes.md
+21. docs/09-scenario-catalog.md
 ```
 
 Use these as supporting docs:
@@ -174,18 +179,24 @@ SonarQube, JaCoCo, and Trivy are wired.
 Terraform state bucket exists.
 GitHub OIDC provider and dev IAM role exist.
 GitHub Actions OIDC smoke test succeeded against AWS account 575108962419.
-Terraform dev skeleton and planned VPC module exist locally.
+Terraform dev infrastructure exists for VPC, ALB, ASG, EC2, RDS, artifact S3,
+VPC Flow Logs, and CloudWatch alarms.
+Dev ALB serves the Orbit Ops app.
 ```
 
 Next step:
 
 ```text
-1. Read docs/17-terraform-enterprise-runbook.md.
-2. Practice Terraform commands from the dev environment.
-3. Create stage and prod environment files by hand.
-4. Add Terraform plan workflow.
-5. Apply dev VPC only after plan review.
-6. Add ALB and EC2 deployment.
+1. Read docs/20-end-to-end-dev-test-runbook.md.
+2. Keep docs/21-linux-aws-command-reference.md open while practicing commands.
+3. Read docs/22-secrets-manager-practice.md before wiring app secrets.
+4. Read docs/23-cicd-interview-scripts.md out loud once.
+5. Use docs/24-chatgpt-interview-script-prompt.md to generate mock interview scripts.
+6. Test the public ALB URL from browser and curl.
+7. Practice Session Manager troubleshooting on one EC2 instance.
+8. Simulate 502, 503, latency, CPU, and memory scenarios.
+9. Add Slack notification routing.
+10. Add Route 53, ACM, and later CloudFront after buying a domain.
 ```
 
 ## How To Memorize The Project

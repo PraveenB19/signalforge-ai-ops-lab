@@ -77,3 +77,8 @@ output "vpc_flow_log_group_name" {
   description = "CloudWatch log group for VPC Flow Logs."
   value       = module.observability.vpc_flow_log_group_name
 }
+
+output "cloudwatch_dashboard_name" {
+  description = "CloudWatch dashboard for dev operational testing."
+  value       = module.observability.dashboard_name
+}
