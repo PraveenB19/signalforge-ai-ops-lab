@@ -91,8 +91,10 @@ Read these when you want the whole project story:
 17. docs/22-secrets-manager-practice.md
 18. docs/23-cicd-interview-scripts.md
 19. docs/24-chatgpt-interview-script-prompt.md
-20. docs/05-interview-troubleshooting-notes.md
-21. docs/09-scenario-catalog.md
+20. docs/25-aws-console-runtime-navigation.md
+21. docs/26-cloudwatch-agent-runtime-observability.md
+22. docs/05-interview-troubleshooting-notes.md
+23. docs/09-scenario-catalog.md
 ```
 
 Use these as supporting docs:
@@ -180,8 +182,10 @@ Terraform state bucket exists.
 GitHub OIDC provider and dev IAM role exist.
 GitHub Actions OIDC smoke test succeeded against AWS account 575108962419.
 Terraform dev infrastructure exists for VPC, ALB, ASG, EC2, RDS, artifact S3,
-VPC Flow Logs, and CloudWatch alarms.
+VPC Flow Logs, CloudWatch dashboards, and CloudWatch alarms.
 Dev ALB serves the Orbit Ops app.
+Runtime observability is being added with CloudWatch Agent for app logs, GC logs,
+memory, and disk metrics.
 ```
 
 Next step:
@@ -192,11 +196,13 @@ Next step:
 3. Read docs/22-secrets-manager-practice.md before wiring app secrets.
 4. Read docs/23-cicd-interview-scripts.md out loud once.
 5. Use docs/24-chatgpt-interview-script-prompt.md to generate mock interview scripts.
-6. Test the public ALB URL from browser and curl.
-7. Practice Session Manager troubleshooting on one EC2 instance.
-8. Simulate 502, 503, latency, CPU, and memory scenarios.
-9. Add Slack notification routing.
-10. Add Route 53, ACM, and later CloudFront after buying a domain.
+6. Keep docs/25-aws-console-runtime-navigation.md open while navigating AWS console.
+7. Read docs/26-cloudwatch-agent-runtime-observability.md before simulations.
+8. Test the public ALB URL from browser and curl.
+9. Practice Session Manager troubleshooting on one EC2 instance.
+10. Simulate 502, 503, latency, CPU, memory, disk, and JVM GC scenarios.
+11. Add Slack notification routing.
+12. Add Route 53, ACM, and later CloudFront after buying a domain.
 ```
 
 ## How To Memorize The Project

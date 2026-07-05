@@ -5,6 +5,13 @@ resource "aws_cloudwatch_log_group" "vpc_flow_logs" {
   tags = var.tags
 }
 
+resource "aws_cloudwatch_log_group" "app_runtime" {
+  name              = "/aws/ec2/${var.name_prefix}/signalforge"
+  retention_in_days = 7
+
+  tags = var.tags
+}
+
 data "aws_iam_policy_document" "flow_logs_assume_role" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -151,6 +158,45 @@ resource "aws_cloudwatch_metric_alarm" "asg_cpu_high" {
   tags = var.tags
 }
 
+resource "aws_cloudwatch_metric_alarm" "asg_memory_high" {
+  alarm_name          = "${var.name_prefix}-asg-memory-high"
+  alarm_description   = "CloudWatch Agent reports high memory usage across app instances."
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 3
+  metric_name         = "mem_used_percent"
+  namespace           = "CWAgent"
+  period              = 60
+  statistic           = "Average"
+  threshold           = 80
+  treat_missing_data  = "missing"
+
+  dimensions = {
+    AutoScalingGroupName = var.autoscaling_group_name
+  }
+
+  tags = var.tags
+}
+
+resource "aws_cloudwatch_metric_alarm" "asg_disk_high" {
+  alarm_name          = "${var.name_prefix}-asg-disk-high"
+  alarm_description   = "CloudWatch Agent reports high root filesystem usage on app instances."
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 3
+  metric_name         = "disk_used_percent"
+  namespace           = "CWAgent"
+  period              = 60
+  statistic           = "Average"
+  threshold           = 80
+  treat_missing_data  = "missing"
+
+  dimensions = {
+    AutoScalingGroupName = var.autoscaling_group_name
+    path                 = "/"
+  }
+
+  tags = var.tags
+}
+
 resource "aws_cloudwatch_dashboard" "ops" {
   dashboard_name = "${var.name_prefix}-ops-dashboard"
 
@@ -247,6 +293,78 @@ resource "aws_cloudwatch_dashboard" "ops" {
           title  = "Recent VPC rejected traffic"
           region = "us-east-1"
           query  = "SOURCE '${aws_cloudwatch_log_group.vpc_flow_logs.name}' | fields @timestamp, srcAddr, dstAddr, dstPort, protocol, action | filter action = 'REJECT' | sort @timestamp desc | limit 20"
+          view   = "table"
+        }
+      },
+      {
+        type   = "metric"
+        x      = 0
+        y      = 20
+        width  = 12
+        height = 6
+        properties = {
+          title   = "EC2 memory from CloudWatch Agent"
+          view    = "timeSeries"
+          stacked = false
+          period  = 60
+          stat    = "Average"
+          metrics = [
+            ["CWAgent", "mem_used_percent", "AutoScalingGroupName", var.autoscaling_group_name, { label = "ASG memory used %" }]
+          ]
+          yAxis = {
+            left = {
+              min = 0
+              max = 100
+            }
+          }
+        }
+      },
+      {
+        type   = "metric"
+        x      = 12
+        y      = 20
+        width  = 12
+        height = 6
+        properties = {
+          title   = "Root disk usage from CloudWatch Agent"
+          view    = "timeSeries"
+          stacked = false
+          period  = 60
+          stat    = "Average"
+          metrics = [
+            ["CWAgent", "disk_used_percent", "AutoScalingGroupName", var.autoscaling_group_name, "path", "/", { label = "Root disk used %" }]
+          ]
+          yAxis = {
+            left = {
+              min = 0
+              max = 100
+            }
+          }
+        }
+      },
+      {
+        type   = "log"
+        x      = 0
+        y      = 26
+        width  = 12
+        height = 6
+        properties = {
+          title  = "Application systemd/stdout logs"
+          region = "us-east-1"
+          query  = "SOURCE '${aws_cloudwatch_log_group.app_runtime.name}' | fields @timestamp, @logStream, @message | filter @logStream like /app/ | sort @timestamp desc | limit 40"
+          view   = "table"
+        }
+      },
+      {
+        type   = "log"
+        x      = 12
+        y      = 26
+        width  = 12
+        height = 6
+        properties = {
+          title  = "JVM GC log events"
+          region = "us-east-1"
+          query  = "SOURCE '${aws_cloudwatch_log_group.app_runtime.name}' | fields @timestamp, @logStream, @message | filter @logStream like /gc/ | sort @timestamp desc | limit 40"
           view   = "table"
         }
       }
