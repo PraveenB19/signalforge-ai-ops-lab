@@ -72,29 +72,30 @@ get short-lived AWS credentials for Terraform and deployment.
 Read these when you want the whole project story:
 
 ```text
-1. docs/00-start-here-interview-runbook.md
-2. docs/00-learning-map.md
-3. docs/visuals/README.md
-4. docs/02-architecture.md
-5. docs/03-github-actions-learning-path.md
-6. docs/11-github-actions-ci.md
-7. docs/12-java-maven-pom-artifacts.md
-8. docs/13-quality-gates-and-ci-security.md
-9. docs/16-oidc-explained-human-version.md
-10. docs/15-aws-oidc-terraform-bootstrap.md
-11. docs/04-terraform-operations.md
-12. docs/17-terraform-enterprise-runbook.md
-13. docs/18-aws-network-flow.md
-14. docs/19-cicd-troubleshooting-runbook.md
-15. docs/20-end-to-end-dev-test-runbook.md
-16. docs/21-linux-aws-command-reference.md
-17. docs/22-secrets-manager-practice.md
-18. docs/23-cicd-interview-scripts.md
-19. docs/24-chatgpt-interview-script-prompt.md
-20. docs/25-aws-console-runtime-navigation.md
-21. docs/26-cloudwatch-agent-runtime-observability.md
-22. docs/05-interview-troubleshooting-notes.md
-23. docs/09-scenario-catalog.md
+1. docs/27-master-interview-and-simulation-guide.md
+2. docs/00-start-here-interview-runbook.md
+3. docs/00-learning-map.md
+4. docs/visuals/README.md
+5. docs/02-architecture.md
+6. docs/03-github-actions-learning-path.md
+7. docs/11-github-actions-ci.md
+8. docs/12-java-maven-pom-artifacts.md
+9. docs/13-quality-gates-and-ci-security.md
+10. docs/16-oidc-explained-human-version.md
+11. docs/15-aws-oidc-terraform-bootstrap.md
+12. docs/04-terraform-operations.md
+13. docs/17-terraform-enterprise-runbook.md
+14. docs/18-aws-network-flow.md
+15. docs/19-cicd-troubleshooting-runbook.md
+16. docs/20-end-to-end-dev-test-runbook.md
+17. docs/21-linux-aws-command-reference.md
+18. docs/22-secrets-manager-practice.md
+19. docs/23-cicd-interview-scripts.md
+20. docs/24-chatgpt-interview-script-prompt.md
+21. docs/25-aws-console-runtime-navigation.md
+22. docs/26-cloudwatch-agent-runtime-observability.md
+23. docs/05-interview-troubleshooting-notes.md
+24. docs/09-scenario-catalog.md
 ```
 
 Use these as supporting docs:
@@ -186,23 +187,26 @@ VPC Flow Logs, CloudWatch dashboards, and CloudWatch alarms.
 Dev ALB serves the Orbit Ops app.
 Runtime observability is being added with CloudWatch Agent for app logs, GC logs,
 memory, and disk metrics.
+The master interview and simulation guide now connects GitHub Actions, OIDC,
+Terraform, Java artifacts, AWS request flow, CloudWatch, and incident drills.
 ```
 
 Next step:
 
 ```text
-1. Read docs/20-end-to-end-dev-test-runbook.md.
-2. Keep docs/21-linux-aws-command-reference.md open while practicing commands.
-3. Read docs/22-secrets-manager-practice.md before wiring app secrets.
-4. Read docs/23-cicd-interview-scripts.md out loud once.
-5. Use docs/24-chatgpt-interview-script-prompt.md to generate mock interview scripts.
-6. Keep docs/25-aws-console-runtime-navigation.md open while navigating AWS console.
-7. Read docs/26-cloudwatch-agent-runtime-observability.md before simulations.
-8. Test the public ALB URL from browser and curl.
-9. Practice Session Manager troubleshooting on one EC2 instance.
-10. Simulate 502, 503, latency, CPU, memory, disk, and JVM GC scenarios.
-11. Add Slack notification routing.
-12. Add Route 53, ACM, and later CloudFront after buying a domain.
+1. Read docs/27-master-interview-and-simulation-guide.md once end to end.
+2. Read docs/20-end-to-end-dev-test-runbook.md.
+3. Keep docs/21-linux-aws-command-reference.md open while practicing commands.
+4. Read docs/22-secrets-manager-practice.md before wiring app secrets.
+5. Read docs/23-cicd-interview-scripts.md out loud once.
+6. Use docs/24-chatgpt-interview-script-prompt.md to generate mock interview scripts.
+7. Keep docs/25-aws-console-runtime-navigation.md open while navigating AWS console.
+8. Read docs/26-cloudwatch-agent-runtime-observability.md before simulations.
+9. Test the public ALB URL from browser and curl.
+10. Practice Session Manager troubleshooting on one EC2 instance.
+11. Simulate 502, 503, latency, CPU, memory, disk, and JVM GC scenarios.
+12. Add Slack notification routing.
+13. Add Route 53, ACM, and later CloudFront after buying a domain.
 ```
 
 ## How To Memorize The Project
