@@ -3,6 +3,11 @@ variable "name_prefix" {
   type        = string
 }
 
+variable "aws_region" {
+  description = "AWS region used by CloudWatch dashboard widgets."
+  type        = string
+}
+
 variable "vpc_id" {
   description = "VPC ID for VPC Flow Logs."
   type        = string

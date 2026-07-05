@@ -90,6 +90,7 @@ module "observability" {
   source = "../../modules/observability"
 
   name_prefix             = local.name_prefix
+  aws_region              = data.aws_region.current.region
   vpc_id                  = module.vpc.vpc_id
   alb_arn_suffix          = module.alb.alb_arn_suffix
   target_group_arn_suffix = module.alb.target_group_arn_suffix
