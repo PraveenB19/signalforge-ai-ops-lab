@@ -273,6 +273,13 @@ JMX exporter:
   Exposes JVM internals for scraping.
 ```
 
+For a broader comparison of OpenTelemetry, Datadog, New Relic, Splunk, Fluent
+Bit, Fluentd, Prometheus, Node Exporter, and Grafana, read:
+
+```text
+docs/29-observability-tools-comparison.md
+```
+
 For this lab:
 
 ```text
