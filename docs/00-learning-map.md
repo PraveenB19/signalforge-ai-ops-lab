@@ -95,8 +95,9 @@ Read these when you want the whole project story:
 21. docs/25-aws-console-runtime-navigation.md
 22. docs/26-cloudwatch-agent-runtime-observability.md
 23. docs/28-architecture-patterns-monolith-microservices-serverless.md
-24. docs/05-interview-troubleshooting-notes.md
-25. docs/09-scenario-catalog.md
+24. docs/29-observability-tools-comparison.md
+25. docs/05-interview-troubleshooting-notes.md
+26. docs/09-scenario-catalog.md
 ```
 
 Use these as supporting docs:
@@ -192,6 +193,9 @@ The master interview and simulation guide now connects GitHub Actions, OIDC,
 Terraform, Java artifacts, AWS request flow, CloudWatch, and incident drills.
 The architecture patterns guide compares monolith on EC2, microservices on EKS,
 and serverless on Lambda using the same mental model.
+The observability tools comparison explains CloudWatch Agent, OpenTelemetry,
+Datadog, New Relic, Splunk, Fluent Bit, Fluentd, Prometheus, Node Exporter, and
+Grafana.
 ```
 
 Next step:
@@ -206,11 +210,12 @@ Next step:
 7. Keep docs/25-aws-console-runtime-navigation.md open while navigating AWS console.
 8. Read docs/26-cloudwatch-agent-runtime-observability.md before simulations.
 9. Read docs/28-architecture-patterns-monolith-microservices-serverless.md.
-10. Test the public ALB URL from browser and curl.
-11. Practice Session Manager troubleshooting on one EC2 instance.
-12. Simulate 502, 503, latency, CPU, memory, disk, and JVM GC scenarios.
-13. Add Slack notification routing.
-14. Add Route 53, ACM, and later CloudFront after buying a domain.
+10. Read docs/29-observability-tools-comparison.md.
+11. Test the public ALB URL from browser and curl.
+12. Practice Session Manager troubleshooting on one EC2 instance.
+13. Simulate 502, 503, latency, CPU, memory, disk, and JVM GC scenarios.
+14. Add Slack notification routing.
+15. Add Route 53, ACM, and later CloudFront after buying a domain.
 ```
 
 ## How To Memorize The Project

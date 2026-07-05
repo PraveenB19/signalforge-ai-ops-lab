@@ -266,3 +266,64 @@ CloudWatch Agent or an observability stack, then alert on those signals. I would
 be careful scaling on memory because memory pressure may indicate a leak, not
 just more traffic.
 ```
+
+## Scenario: Terraform Apply Failed Creating CloudWatch Dashboard
+
+What happened:
+
+```text
+Terraform apply reached aws_cloudwatch_dashboard.ops.
+AWS rejected the dashboard body with InvalidParameterInput.
+The error said metric widgets should have required property 'region'.
+```
+
+Why this happened:
+
+```text
+Terraform HCL syntax was valid, but the generated CloudWatch dashboard JSON did
+not satisfy the CloudWatch PutDashboard API schema.
+```
+
+Important lesson:
+
+```text
+terraform validate checks Terraform configuration syntax and provider schema.
+It does not guarantee every remote AWS API payload will pass service-specific
+runtime validation.
+```
+
+Root cause:
+
+```text
+The log widgets had region configured, but the metric widgets did not.
+CloudWatch metric widgets need a region so CloudWatch knows where to read the
+metric data from.
+```
+
+Fix:
+
+```text
+Added aws_region as an input to the observability module.
+Passed data.aws_region.current.name from infra/envs/dev/main.tf.
+Set region = var.aws_region on every CloudWatch dashboard metric/log widget.
+```
+
+How to explain:
+
+```text
+This was not an IAM or CloudWatch alarm issue. Terraform was authenticated and
+was able to call CloudWatch, but CloudWatch rejected the dashboard JSON. I read
+the validation path from the error, found the affected metric widgets, added the
+missing region property, and reran Terraform apply.
+```
+
+Interview answer:
+
+```text
+I treat Terraform apply failures in two buckets: Terraform configuration errors
+and remote provider/API validation errors. In this case, Terraform syntax was
+fine, but AWS CloudWatch PutDashboard rejected the JSON because metric widgets
+were missing region. The fix was to pass the AWS region into the observability
+module and include it in each metric widget. After that, the same apply can be
+rerun safely because Terraform is idempotent.
+```

@@ -220,6 +220,7 @@ resource "aws_cloudwatch_dashboard" "ops" {
         height = 6
         properties = {
           title   = "ALB request rate and errors"
+          region  = var.aws_region
           view    = "timeSeries"
           stacked = false
           period  = 60
@@ -239,6 +240,7 @@ resource "aws_cloudwatch_dashboard" "ops" {
         height = 6
         properties = {
           title   = "Target latency p95"
+          region  = var.aws_region
           view    = "timeSeries"
           stacked = false
           period  = 60
@@ -256,6 +258,7 @@ resource "aws_cloudwatch_dashboard" "ops" {
         height = 6
         properties = {
           title   = "Target health"
+          region  = var.aws_region
           view    = "timeSeries"
           stacked = false
           period  = 60
@@ -274,6 +277,7 @@ resource "aws_cloudwatch_dashboard" "ops" {
         height = 6
         properties = {
           title   = "Auto Scaling CPU"
+          region  = var.aws_region
           view    = "timeSeries"
           stacked = false
           period  = 60
@@ -291,7 +295,7 @@ resource "aws_cloudwatch_dashboard" "ops" {
         height = 6
         properties = {
           title  = "Recent VPC rejected traffic"
-          region = "us-east-1"
+          region = var.aws_region
           query  = "SOURCE '${aws_cloudwatch_log_group.vpc_flow_logs.name}' | fields @timestamp, srcAddr, dstAddr, dstPort, protocol, action | filter action = 'REJECT' | sort @timestamp desc | limit 20"
           view   = "table"
         }
@@ -304,6 +308,7 @@ resource "aws_cloudwatch_dashboard" "ops" {
         height = 6
         properties = {
           title   = "EC2 memory from CloudWatch Agent"
+          region  = var.aws_region
           view    = "timeSeries"
           stacked = false
           period  = 60
@@ -327,6 +332,7 @@ resource "aws_cloudwatch_dashboard" "ops" {
         height = 6
         properties = {
           title   = "Root disk usage from CloudWatch Agent"
+          region  = var.aws_region
           view    = "timeSeries"
           stacked = false
           period  = 60
@@ -350,7 +356,7 @@ resource "aws_cloudwatch_dashboard" "ops" {
         height = 6
         properties = {
           title  = "Application systemd/stdout logs"
-          region = "us-east-1"
+          region = var.aws_region
           query  = "SOURCE '${aws_cloudwatch_log_group.app_runtime.name}' | fields @timestamp, @logStream, @message | filter @logStream like /app/ | sort @timestamp desc | limit 40"
           view   = "table"
         }
@@ -363,7 +369,7 @@ resource "aws_cloudwatch_dashboard" "ops" {
         height = 6
         properties = {
           title  = "JVM GC log events"
-          region = "us-east-1"
+          region = var.aws_region
           query  = "SOURCE '${aws_cloudwatch_log_group.app_runtime.name}' | fields @timestamp, @logStream, @message | filter @logStream like /gc/ | sort @timestamp desc | limit 40"
           view   = "table"
         }
