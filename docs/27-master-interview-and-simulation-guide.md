@@ -221,6 +221,12 @@ prod:
   Controlled deployment, approvals, stricter IAM, stricter alarms.
 ```
 
+For monolith vs microservices vs serverless comparison, read:
+
+```text
+docs/28-architecture-patterns-monolith-microservices-serverless.md
+```
+
 ## 4. GitHub OIDC To AWS
 
 Problem with access keys:
@@ -939,4 +945,7 @@ Runtime troubleshooting:
 Scenarios:
   docs/05-interview-troubleshooting-notes.md
   docs/09-scenario-catalog.md
+
+Monolith, microservices, serverless:
+  docs/28-architecture-patterns-monolith-microservices-serverless.md
 ```
