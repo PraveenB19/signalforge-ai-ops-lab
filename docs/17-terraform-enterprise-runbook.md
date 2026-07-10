@@ -234,6 +234,244 @@ terraform apply:
   Creates/changes/destroys resources and updates state.
 ```
 
+## Terraform Creation Order And Dependency Graph
+
+Terraform does not create resources simply in the order they appear in
+`main.tf`.
+
+Terraform creates a dependency graph.
+
+Plain-English model:
+
+```text
+Terraform reads all .tf files.
+Terraform finds references between resources and modules.
+Terraform builds a graph of dependencies.
+Terraform creates independent resources in parallel.
+Terraform waits when one resource needs another resource first.
+```
+
+Memory hook:
+
+```text
+References create relationships.
+Relationships create the graph.
+The graph controls the order.
+```
+
+Example:
+
+```hcl
+vpc_id = module.vpc.vpc_id
+```
+
+This tells Terraform:
+
+```text
+This resource or module cannot be fully planned/applied until module.vpc has a
+VPC ID output.
+```
+
+You can also force an explicit dependency:
+
+```hcl
+depends_on = [module.alb]
+```
+
+Use `depends_on` only when Terraform cannot infer the dependency from normal
+references. Most of the time, references are better.
+
+## SignalForge Resource Order
+
+Terraform may create independent resources in parallel, but the logical order in
+this project is:
+
+```text
+1. Provider/backend initialization
+2. VPC
+3. Internet Gateway
+4. Public/private subnets
+5. Route tables and subnet associations
+6. NAT Gateway and Elastic IP
+7. Security groups
+8. IAM roles and EC2 instance profile
+9. S3 artifact bucket
+10. ALB target group
+11. ALB and listener
+12. Launch template
+13. Auto Scaling Group and EC2 instances
+14. RDS subnet group, secret, and database
+15. VPC Flow Logs, CloudWatch log groups, alarms, dashboard
+```
+
+Important:
+
+```text
+This is the logical dependency order, not necessarily one-by-one execution.
+Terraform may create S3, IAM, security groups, and log groups in parallel once
+their dependencies are ready.
+```
+
+## ALB, Target Group, ASG, And Health Checks
+
+This is the part that often feels confusing.
+
+### What must exist before the ASG?
+
+The Auto Scaling Group needs:
+
+```text
+Private app subnet IDs:
+  Where EC2 instances should run.
+
+Launch template:
+  What AMI, instance type, IAM instance profile, security group, and user data
+  each EC2 instance should use.
+
+Target group ARN:
+  Where the ASG should register EC2 instances for ALB traffic.
+```
+
+That means the target group usually exists before the ASG.
+
+The ALB listener also points to the target group:
+
+```text
+ALB listener -> target group
+ASG -> registers EC2 instances into target group
+Target group -> runs health checks against EC2 instances
+```
+
+Mental model:
+
+```mermaid
+flowchart LR
+    VPC["VPC"] --> Subnets["Private app subnets"]
+    VPC --> SG["Security groups"]
+    SG --> LT["Launch template"]
+    IAM["Instance profile"] --> LT
+    ALB["ALB"] --> Listener["Listener"]
+    TG["Target group"] --> Listener
+    Subnets --> ASG["Auto Scaling Group"]
+    LT --> ASG
+    TG --> ASG
+    ASG --> EC2["EC2 instances"]
+    EC2 --> TGHealth["Target group health checks"]
+```
+
+### Does ALB need EC2 instances before it exists?
+
+No.
+
+```text
+The ALB and target group can exist before EC2 instances are registered.
+The target group will simply have no healthy targets until the ASG launches
+instances and registers them.
+```
+
+### Does ASG need ALB?
+
+The ASG does not strictly need an ALB in every architecture.
+
+Examples:
+
+```text
+Worker ASG:
+  No ALB. Instances process SQS jobs or background work.
+
+Web app ASG:
+  Usually attached to a target group behind an ALB.
+```
+
+In this project, the ASG is for a web application, so it attaches to the ALB
+target group.
+
+### When do we create an Auto Scaling Group?
+
+Create an ASG when you want:
+
+```text
+High availability:
+  More than one instance across Availability Zones.
+
+Self-healing:
+  Replace failed/unhealthy instances automatically.
+
+Scaling:
+  Add/remove instances based on load or schedule.
+
+Rolling updates:
+  Replace instances gradually when launch template or AMI changes.
+```
+
+Consider before creating an ASG:
+
+```text
+Minimum/desired/maximum capacity.
+Which private subnets and Availability Zones to use.
+Launch template details.
+Security group rules.
+IAM instance profile.
+Health check type and grace period.
+Whether it should attach to an ALB target group.
+Scaling policy: CPU, memory/custom metric, request count, or schedule.
+Application startup time.
+How deployment updates are rolled out.
+```
+
+Interview answer:
+
+```text
+For a web application, I usually create the ALB target group before the Auto
+Scaling Group because the ASG needs a target group ARN to register instances.
+The ALB, listener, and target group can exist even if no instances are healthy
+yet. Once the ASG launches EC2 instances in private subnets, it registers them
+with the target group, and the target group health check decides whether ALB can
+send traffic to them.
+```
+
+## Manual Creation vs Terraform Automation
+
+Manually, humans often think:
+
+```text
+Create VPC.
+Create subnets.
+Create routes.
+Create security groups.
+Create ALB.
+Create EC2.
+Create RDS.
+Create monitoring.
+```
+
+Terraform thinks:
+
+```text
+What depends on what?
+What can be created in parallel?
+What must wait?
+```
+
+That is why the Terraform apply log may not look exactly like your manual
+mental order.
+
+Example:
+
+```text
+CloudWatch log group may be created while IAM roles are being created.
+S3 artifact bucket may be created while security groups are being created.
+ALB target group may be created before EC2 exists.
+RDS subnet group may be created before RDS database exists.
+```
+
+Production line:
+
+```text
+The important thing is not file order. The important thing is correct
+dependencies, correct outputs, correct state, and a reviewed plan.
+```
+
 ## File Loss Scenarios
 
 ### backend.tf Deleted

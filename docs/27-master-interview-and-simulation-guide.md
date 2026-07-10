@@ -339,6 +339,13 @@ How to detect:
 terraform plan -input=false
 ```
 
+For creation order, dependency graph, and ALB/target group/ASG relationships,
+read:
+
+```text
+docs/17-terraform-enterprise-runbook.md
+```
+
 Interview answer:
 
 ```text

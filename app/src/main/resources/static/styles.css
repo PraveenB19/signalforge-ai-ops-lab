@@ -213,6 +213,61 @@ body[data-theme="light"] .timeline-panel {
   box-shadow: 0 18px 45px rgba(52, 45, 34, 0.08);
 }
 
+/* Light mode needs light surfaces as well as light text tokens. */
+body[data-theme="light"] .hero-panel {
+  background:
+    radial-gradient(circle at 82% 30%, rgba(47, 143, 125, 0.15), transparent 30%),
+    linear-gradient(135deg, #f8fbf8, #edf5f1);
+}
+
+body[data-theme="light"] .journey-panel {
+  background:
+    linear-gradient(135deg, rgba(47, 143, 125, 0.12), transparent 42%),
+    #fffaf1;
+}
+
+body[data-theme="light"] .explain-panel {
+  background:
+    linear-gradient(135deg, rgba(68, 111, 168, 0.11), transparent 42%),
+    #f8fbfd;
+}
+
+body[data-theme="light"] .drill-board {
+  background:
+    linear-gradient(160deg, rgba(68, 111, 168, 0.09), transparent 46%),
+    #f8fbfd;
+}
+
+body[data-theme="light"] .analysis-board {
+  background:
+    linear-gradient(160deg, rgba(168, 113, 16, 0.1), transparent 46%),
+    #fffaf1;
+}
+
+body[data-theme="light"] .chart-panel {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(68, 111, 168, 0.12), transparent 36%),
+    #f8fbfd;
+}
+
+body[data-theme="light"] .flow-panel {
+  background:
+    radial-gradient(circle at 86% 12%, rgba(47, 143, 125, 0.12), transparent 32%),
+    #f7fbf8;
+}
+
+body[data-theme="light"] .flow-panel-top {
+  background:
+    linear-gradient(120deg, rgba(47, 143, 125, 0.12), transparent 34%),
+    linear-gradient(260deg, rgba(168, 113, 16, 0.09), transparent 42%),
+    #f7fbf8;
+}
+
+body[data-theme="light"] .practice-lab,
+body[data-theme="light"] .timeline-panel {
+  background: #fffaf1;
+}
+
 .hero-panel::after {
   content: "";
   position: absolute;
@@ -292,6 +347,12 @@ body[data-theme="light"] .event-row {
 .route-node.active {
   border-color: rgba(97, 179, 165, 0.8);
   background: #14211f;
+}
+
+body[data-theme="light"] .route-node.active,
+body[data-theme="light"] .layer.active,
+body[data-theme="light"] .drills button.active {
+  background: #e8f5f1;
 }
 
 .route-line {
@@ -659,6 +720,20 @@ body[data-theme="light"] .drills button.active {
   background: #edf8f4;
 }
 
+body[data-theme="light"] .drills button[data-action="storm"],
+body[data-theme="light"] .drills button[data-sim*="502"],
+body[data-theme="light"] .drills button[data-sim*="503"],
+body[data-theme="light"] .drills button[data-sim*="504"] {
+  background: #fff1ef;
+}
+
+body[data-theme="light"] .drills button[data-sim*="401"],
+body[data-theme="light"] .drills button[data-sim*="403"],
+body[data-theme="light"] .drills button[data-sim*="404"],
+body[data-theme="light"] .drills button[data-sim*="429"] {
+  background: #fff8e8;
+}
+
 .ghost:active,
 .drills button:active {
   transform: translateY(1px) scale(0.99);
@@ -950,6 +1025,11 @@ body[data-theme="light"] .coach-flow div {
   color: #cfd7dd;
   font-family: var(--mono);
   font-size: 12px;
+}
+
+body[data-theme="light"] .checklist span,
+body[data-theme="light"] .event-row {
+  color: #26313a;
 }
 
 .timeline-panel {

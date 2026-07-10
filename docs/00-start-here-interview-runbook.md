@@ -66,18 +66,23 @@ GitHub OIDC provider in AWS
 GitHub Actions dev IAM role
 Correct OIDC trust policy for GitHub environment dev
 AWS OIDC smoke-test workflow
-Terraform dev backend/provider skeleton
-Terraform dev plan workflow
-Terraform dev plan passed through GitHub OIDC
+Terraform remote state and dev plan/apply/destroy workflows
+Terraform modules for VPC, security groups, ALB, ASG/EC2, RDS, artifacts, IAM,
+and observability
+ALB deployment to private EC2 targets through SSM and systemd
+CloudWatch Agent, dashboard, alarms, VPC Flow Logs, application logs, and JVM
+GC logs
 ```
 
 Next major work:
 
 ```text
-VPC module
-ALB/EC2 deployment
-CloudWatch metrics and alerts
-Incident simulations
+Deploy and verify a healthy baseline.
+Run controlled incident simulations and document the evidence and recovery.
+Connect alarm notifications to Slack.
+Connect the application to RDS using Secrets Manager.
+Build an advisory-only AI incident analyst from alarm, metric, and log context.
+Add Route 53, ACM, HTTPS, and a custom domain after operations practice.
 ```
 
 ## Big Picture Architecture

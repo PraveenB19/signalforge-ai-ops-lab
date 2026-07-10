@@ -196,11 +196,69 @@ Day 2:
 Current checkpoint:
 
 ```text
-Java app and CI are working.
-SonarQube Cloud, JaCoCo, and Trivy are integrated.
-Terraform state bucket is created.
-GitHub OIDC provider and dev IAM role are configured.
-Next step is testing GitHub Actions -> AWS OIDC role assumption, then building Terraform dev infrastructure.
+Implemented:
+  Java 21 Spring Boot Orbit scenario trainer.
+  GitHub Actions CI with Maven, JUnit, JaCoCo, SonarCloud, and Trivy.
+  GitHub OIDC authentication to AWS without long-lived AWS access keys.
+  Terraform modules for VPC, ALB, private EC2 Auto Scaling, RDS,
+  security groups, artifacts, IAM, and observability.
+  S3 artifact deployment through SSM and systemd.
+  CloudWatch dashboard, ALB/target/CPU/memory/disk alarms, VPC Flow Logs,
+  application logs, and JVM GC logs.
+
+Next learning milestone:
+  Deploy the dev environment, establish a healthy baseline, and run one
+  controlled incident at a time: application 5xx, latency, CPU, memory,
+  unhealthy targets, and Terraform/network drift.
+
+Next platform milestones:
+  1. Deliver CloudWatch alarms to Slack.
+  2. Connect the Java application to RDS using Secrets Manager.
+  3. Add an advisory-only AI incident analyst.
+  4. Add a domain, Route 53 alias record, ACM certificate, and HTTPS listener.
+```
+
+## Resume Here
+
+Use these documents in this order:
+
+```text
+1. docs/27-master-interview-and-simulation-guide.md
+   The single learning sequence: deploy, observe, simulate, recover, explain.
+
+2. docs/20-end-to-end-dev-test-runbook.md
+   The hands-on AWS console, ALB, Session Manager, systemd, and deployment steps.
+
+3. docs/09-scenario-catalog.md
+   The incident menu: symptoms, metrics, commands, mitigation, and permanent fixes.
+```
+
+Do not add Route 53, CloudFront, or AI automation before completing at least a
+few baseline-and-recovery drills. Observability evidence makes later portfolio
+claims real and gives the AI analyst useful inputs.
+
+## Remaining Costs And Scope
+
+```text
+Slack:
+  Free workspace is enough for the lab. We will connect CloudWatch alarms using
+  SNS and Amazon Q in chat applications.
+
+RDS-backed application:
+  The current RDS instance already costs while it is running. Adding JDBC/JPA,
+  a small schema, and Secrets Manager retrieval does not create a second RDS
+  charge, but it may add modest Secrets Manager and API-call costs. The database
+  remains the main cost driver. Destroy the dev environment when not practicing.
+
+AI incident analyst:
+  Optional and intentionally advisory-only at first. It will use a small Lambda
+  function, CloudWatch/ALB evidence, a secret-held API key, and an OpenAI or
+  Anthropic API. Both Lambda and model calls can incur usage-based costs.
+
+Domain / Route 53:
+  Optional for testing. A domain has annual registrar cost; a Route 53 hosted
+  zone has a monthly cost. Add it after the incident drills when you are ready
+  to learn DNS, alias records, ACM, and HTTPS.
 ```
 
 ## Beginner Learning Style
