@@ -1,6 +1,15 @@
-# SignalForge AI Ops Lab
+# SignalForge AI Ops Lab | Human-Governed Reliability Agents
 
-SignalForge AI Ops Lab is a hands-on DevOps and reliability engineering project for deploying a Java application on AWS with GitHub Actions, Terraform, security scanning, observability, incident simulation, and AI-assisted troubleshooting.
+SignalForge is an AI-assisted reliability control plane for cloud applications.
+It turns delivery events, runtime metrics, logs, target health, and deployment
+context into evidence-backed incident guidance, while keeping rollback, scaling,
+and recovery actions under human approval.
+
+The current Orbit runtime lab is the evidence source: a Java application on AWS
+that can generate controlled failure signals through a real ALB, private EC2
+targets, CloudWatch, VPC Flow Logs, and RDS network boundary. The next milestone
+is an advisory Amazon Bedrock incident analyst that summarizes evidence for
+Slack, then proposes safe actions for human review.
 
 Start here before interviews:
 
@@ -18,7 +27,10 @@ Visual learning pack:
 
 [SignalForge Visual Learning Pack](docs/visuals/README.md)
 
-This is not only a "three-tier app on AWS" project. The goal is to learn how modern teams build, deploy, secure, monitor, break, diagnose, and recover production-style systems.
+This is not a generic three-tier deployment. It is the runtime foundation for a
+portfolio of human-governed reliability agents: PR review, Jenkins triage, EKS
+health diagnosis, rollback decisions, architecture design, capacity planning,
+and approval-gated remediation.
 
 The lab is also designed to be disposable:
 
@@ -68,7 +80,7 @@ This repo is designed for DevOps, SRE, cloud, and platform engineering interview
 - Java artifact build, scan, storage, promotion, and deployment
 - EC2 runtime troubleshooting with Linux and JVM commands
 - CloudWatch dashboards, alarms, logs, and production-style metrics
-- 502, 503, latency, CPU, memory, disk, and database failure simulations
+- 502, 503, latency, CPU, memory, disk, and database connectivity/failure drills
 - Security controls across IAM, network, secrets, artifacts, and supply chain
 - AI-assisted root-cause analysis and incident runbook generation
 - Beginner-friendly explanations of command flags, Terraform syntax, AWS terms, and production incident language
@@ -231,6 +243,10 @@ Use these documents in this order:
 
 3. docs/09-scenario-catalog.md
    The incident menu: symptoms, metrics, commands, mitigation, and permanent fixes.
+
+4. docs/30-live-production-operations-lab.md
+   The live lab: exact command location, CloudWatch time correlation, metrics,
+   logs, Session Manager, JVM, target-health, and recovery drills.
 ```
 
 Do not add Route 53, CloudFront, or AI automation before completing at least a

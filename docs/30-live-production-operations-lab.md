@@ -19,6 +19,54 @@ Create one controlled symptom
 Use only the dev lab. Run one drill at a time and restore it before starting
 the next one.
 
+## 0. Production Operating Check Card
+
+Use this compact sequence whenever someone says, "the application is slow or
+not working."
+
+```text
+1. External symptom: browser, curl, synthetic monitor, or customer report.
+2. Load balancer: listener, request count, 4xx/5xx, p95 latency.
+3. Target group: healthy/unhealthy count and health-check reason.
+4. Compute: ASG desired/current capacity, EC2 status, CPU, memory, disk.
+5. App host: service state, listening port, local health, app logs.
+6. Runtime: JVM heap, GC, threads, process CPU/memory.
+7. Dependencies: DNS, routes, security groups, Flow Logs, RDS state/metrics.
+8. Change context: recent deployment, artifact SHA, secret/config, Terraform drift.
+9. Mitigate, verify recovery, record timeline, prevent recurrence.
+```
+
+### Is curl Always Used?
+
+`curl` is the fastest common manual tool, but it is not the only production
+check. Use the tool that matches the question:
+
+```text
+Browser:
+  Does the real user experience and UI journey work?
+
+curl:
+  What exact URL, HTTP status, headers, DNS/TCP/TTFB timing, and response body
+  does the service return?
+
+ALB target health check:
+  Is the application health endpoint healthy from the load balancer's view?
+
+CloudWatch Synthetics or another synthetic monitor:
+  Does a scheduled external user journey work continuously?
+
+k6, JMeter, Locust, or Gatling:
+  What happens under controlled concurrent load? Do not use curl loops as the
+  final load-testing tool.
+
+CloudWatch metrics/logs/traces:
+  What changed over time, where, and for which requests?
+```
+
+For this lab, use Mac `curl` to create or reproduce external customer traffic,
+then prove the result with CloudWatch and Target Groups. Use Session Manager
+only when you need host/runtime evidence or a controlled one-host failure.
+
 ## 1. The Three Places You Work
 
 ```text
@@ -96,6 +144,48 @@ Plain-English TLS flow:
 6. ALB forwards useful context such as X-Forwarded-For, X-Forwarded-Proto,
    and X-Forwarded-Port.
 ```
+
+### TLS vs SSL: The Simple, Accurate Explanation
+
+```text
+SSL:
+  The older family of protocols. It is obsolete/insecure in modern systems, but
+  people still casually say "SSL certificate."
+
+TLS:
+  Transport Layer Security. The modern protocol actually used for HTTPS.
+
+ACM certificate:
+  The certificate managed by AWS Certificate Manager. It proves the ALB is
+  allowed to serve a domain and participates in the TLS handshake.
+```
+
+TLS gives the browser-to-ALB connection three protections:
+
+```text
+Confidentiality:
+  Others cannot read the request/response contents in transit.
+
+Authentication:
+  Browser validates that the certificate matches the requested domain and was
+  issued by a trusted certificate authority.
+
+Integrity:
+  Tampering with encrypted traffic is detected.
+```
+
+Simple handshake memory hook:
+
+```text
+ClientHello -> ALB certificate -> browser validates domain -> shared session
+keys -> encrypted HTTPS request
+```
+
+TLS termination means that encrypted browser traffic ends at ALB. ALB decrypts
+it, applies Layer-7 listener rules, then creates a separate backend connection
+to the target. In this lab that backend connection is HTTP port 8080 inside the
+private VPC. A stricter production design can also use HTTPS from ALB to target
+when end-to-end encryption or compliance requires it.
 
 Ports are conventions, not magic requirements:
 
@@ -342,6 +432,61 @@ X-Forwarded-Port:
 Host:
   Hostname the client requested. ALB listener rules can route by host.
 ```
+
+### Forwarded Header Example
+
+Today, a browser sends this to the public ALB:
+
+```http
+GET /api/signals HTTP/1.1
+Host: signalforge-dev-alb-861720759.us-east-1.elb.amazonaws.com
+```
+
+The ALB then opens a separate backend request to a private EC2 target on port
+8080. The backend connection source is the ALB, not the original browser. To
+preserve the useful original context, ALB forwards headers like:
+
+```http
+GET /api/signals HTTP/1.1
+Host: signalforge-dev-alb-861720759.us-east-1.elb.amazonaws.com
+X-Forwarded-For: 203.0.113.24
+X-Forwarded-Proto: http
+X-Forwarded-Port: 80
+```
+
+Meaning:
+
+```text
+X-Forwarded-For: 203.0.113.24
+  The original browser/client IP. Without it, the application sees the ALB as
+  the TCP peer and cannot identify the original client address for logging,
+  rate limiting, audit records, or security investigation.
+
+X-Forwarded-Proto: http
+  The protocol used by the browser at the public edge. In the current lab that
+  is HTTP. After ACM and an HTTPS listener are added, it becomes https even if
+  ALB forwards plain HTTP to EC2 port 8080.
+
+X-Forwarded-Port: 80
+  The public port the browser used to reach the ALB. After HTTPS is added it
+  becomes 443. It is not the private target port 8080.
+```
+
+Future HTTPS example:
+
+```text
+Browser -> https://app.example.com:443 -> ALB
+ALB terminates TLS -> http://private-ec2:8080
+
+Backend receives:
+  X-Forwarded-Proto: https
+  X-Forwarded-Port: 443
+  X-Forwarded-For: original browser IP
+```
+
+This is why an application behind an ALB must be configured to trust forwarded
+headers only from a known proxy/load balancer. Blindly trusting a client-supplied
+`X-Forwarded-For` header lets an attacker spoof an IP address.
 
 Useful metadata you correlate in a production incident:
 
